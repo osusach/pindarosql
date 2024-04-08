@@ -7,9 +7,7 @@ export async function getGameLeaderboard(gameId: number, maxEntries: number, db:
 
   return {
     success: true,
-    payload: {
-      message: "Leaderboard retrieved successfully",
-      leaderboard: leaderboard.rows as {name: string, score: number, answer_time: string}[]
-    }
+    message: "Leaderboard retrieved successfully",
+    payload: leaderboard.rows as {name: string, score: number, answer_time: string}[]
   }
 }

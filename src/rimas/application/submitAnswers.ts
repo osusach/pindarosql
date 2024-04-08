@@ -10,10 +10,8 @@ export async function submitAnswers(body: any, env: Bindings, db: Connection) {
   if (!bodyValidation.success) {
     return {
       success: false,
-      message: bodyValidation.error,
-      payload: {
-
-      }
+      message: bodyValidation.error.toString(),
+      payload: null
     };
   }
   const data = bodyValidation.data
@@ -22,8 +20,7 @@ export async function submitAnswers(body: any, env: Bindings, db: Connection) {
     return {
       success: false,
       message: questions.message,
-      payload: {
-      }
+      payload: null
     }
   }
 
@@ -34,9 +31,7 @@ export async function submitAnswers(body: any, env: Bindings, db: Connection) {
     return {
       success: false,
       message: check.message,
-      payload: {
-
-      }
+      payload: null
     };
   }
   return {

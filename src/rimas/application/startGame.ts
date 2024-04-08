@@ -15,9 +15,7 @@ export async function startGame(difficulty: number, db: Connection) {
     return {
       success: false,
       message: rimaSets.message,
-      payload: {
-        game: null
-      }
+      payload: null
     }
   }
 
@@ -27,9 +25,7 @@ export async function startGame(difficulty: number, db: Connection) {
     return {
       success: false,
       message: session.payload.message,
-      payload: {
-        game: null
-      }
+      payload: null
     }
   }
 
@@ -40,9 +36,7 @@ export async function startGame(difficulty: number, db: Connection) {
     return {
       success: false,
       message: game.message,
-      payload: {
-        game: null
-      }
+      payload: null
     }
   }
 
@@ -65,10 +59,8 @@ export async function startGame(difficulty: number, db: Connection) {
     success: true,
     message: "Game created successfully",
     payload: {
-      game: {
-        session_id: session.payload.session_id,
-        questions: acentualQuestions
-      }
+      session_id: session.payload.session_id,
+      questions: acentualQuestions
     }
   }
 }

@@ -2,6 +2,7 @@ import type { Connection } from "@planetscale/database";
 import { sessionAnswers } from "../../shared/schemas"
 import { getQuestions } from "./getQuestions";
 import { checkAnswers } from "./checkAnswers";
+import { getSession } from "../../shared/getSession";
 
 export async function submitAnswers(body: any, env: Bindings, db: Connection) {
   const bodyValidation = sessionAnswers.safeParse(body);
@@ -22,7 +23,22 @@ export async function submitAnswers(body: any, env: Bindings, db: Connection) {
     }
   }
 
-const check = await checkAnswers(data, questions.content, env, db)
+  const session = await getSession(data.session_id, db)
+
+  if (!session.content) {
+    return {
+      success: false,
+      message: session.message,
+      payload: null
+    }
+  }
+  const sessionWithAnswers = {
+    answers: questions.content,
+    session_difficulty: session.content.session_difficulty,
+    creation_date: session.content.creation_date
+  }
+
+  const check = await checkAnswers(data, sessionWithAnswers, env, db)
 
   if (!check.content) {
     return {

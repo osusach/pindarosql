@@ -1,5 +1,6 @@
 import type { Connection } from "@planetscale/database";
 import { v4 } from 'uuid'
+import jwt from "@tsndr/cloudflare-worker-jwt"
 import { userExists } from "./userExists"
 
 import { addUserSchema } from "../../shared/schemas"
@@ -10,10 +11,9 @@ export async function addUser(body: any, env: Bindings, db: Connection) {
   if (!bodyValidation.success) {
     return {
       success: false,
-      message: bodyValidation.error,
-      payload: {
-      },
-    };
+      message: bodyValidation.error.toString(),
+      payload: null
+    }
   }
   const data = bodyValidation.data
 
@@ -21,8 +21,7 @@ export async function addUser(body: any, env: Bindings, db: Connection) {
     return {
       success: false,
       message: "User already exists in database!",
-      payload: {
-      }
+      payload: null
     }
   }
 
@@ -36,14 +35,17 @@ export async function addUser(body: any, env: Bindings, db: Connection) {
     return {
       success: false,
       message: "Error adding user to database",
-      payload: {
-      }
+      payload: null
     }
   }
+
+  const token = await jwt.sign({user_id: userQuery.insertId, is_admin: false}, env.JWT_KEY)
+
   return {
     success: true,
     message: "User added successfully!",
     payload: {
+      token: token
     }
   }
 }

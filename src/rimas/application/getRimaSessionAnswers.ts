@@ -1,9 +1,9 @@
 
 import { Connection } from "@planetscale/database"
 import { SessionAnswers } from "./types"
-import { getSession } from "./getSession"
+import { getSession } from "../../shared/getSession";
 import { getCompleteRimaGames } from "./getCompleteRimaGames";
-import { Optional } from "../../shared/types";
+import { Optional} from "../../shared/types";
 
 
 

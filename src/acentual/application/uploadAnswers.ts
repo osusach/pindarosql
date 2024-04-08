@@ -18,15 +18,15 @@ export async function uploadAnswers(corrections: acentualCorrection[],
   if (!token) { 
     const uploadAnswersQuery = await db.execute(`INSERT INTO Answer (session_id, user_id, answer_value, game_type_id, game_id) VALUES ${corrections.map(e=> `("${gameSession}", 0, ${e.user_answer_value}, 2, ${e.game_id})`).join(",")}`)
     const uploadScoreQuery = await uploadScore(gameSession, 0, score, start_date, difficulty, db)
-    if (!uploadScoreQuery.success) {
+    if (!uploadScoreQuery.content) {
       return {
-        message: uploadScoreQuery.payload.message,
+        message: uploadScoreQuery.message,
         content: null
       }
     }
     return {
       message: "Answers stored as anonymous/guest",
-      content: uploadScoreQuery.payload.time
+      content: uploadScoreQuery.content
     }
   }
   const userData = await authenticateJWT(token, env)
@@ -50,7 +50,7 @@ export async function uploadAnswers(corrections: acentualCorrection[],
   }
 
   const uploadScoreQuery = await uploadScore(gameSession, userData.content.user_id, score, start_date, difficulty, db)
-  if (!uploadScoreQuery.success) {
+  if (!uploadScoreQuery.content) {
     return {
       message: "Couldn't store score",
       content: null
@@ -59,6 +59,6 @@ export async function uploadAnswers(corrections: acentualCorrection[],
 
   return {
     message: "Answers stored successfully by user",
-    content: uploadScoreQuery.payload.time!
+    content: uploadScoreQuery.content
   }
 }

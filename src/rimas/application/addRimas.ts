@@ -9,19 +9,18 @@ export async function addRimas(body: any, env: Bindings, db: Connection) {
   if (!bodyValidation.success) {
     return {
       success: false,
-      payload: {
-        message: bodyValidation.error.toString()
-      }
+      message: bodyValidation.error.toString(),
+      payload: null
     };
   }
+
   const data = bodyValidation.data
 
   if (!(await validateAdmin(data.token, env))) {
     return {
       success: false,
-      payload: {
-        message: "You have no authorization to do this! "
-      }
+      message: "You have no authorization to do this!",
+      payload: null
     }
   }
   console.log("Validado")
@@ -38,17 +37,15 @@ export async function addRimas(body: any, env: Bindings, db: Connection) {
   if (uploadRhymeRequest.rowsAffected != data.rimas.length) {
     return {
       success: false,
-      payload: {
-        message: "Error while trying to upload the rhymes to the database"
-      }
+      message: "Error while trying to upload the rhymes to the database",
+      payload: null
     }
   }
 
   return {
     success: true,
-    payload: {
-      message: "Rhymes uploaded to database successfully!"
-    }
+    message: "Rhymes uploaded to database successfully!",
+    payload: null
   }
 }
 

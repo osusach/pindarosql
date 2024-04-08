@@ -12,8 +12,7 @@ export async function getAllRimas(body: any, env: Bindings, db: Connection) {
     return {
       success: false,
       message: bodyValidation.error.toString(),
-      payload: {
-      }
+      payload: null
     };
   }
   const data = bodyValidation.data
@@ -22,8 +21,7 @@ export async function getAllRimas(body: any, env: Bindings, db: Connection) {
     return {
       success: false,
       message: "You have no authorization to do this!",
-      payload: {
-      }
+      payload: null
     }
   }
 

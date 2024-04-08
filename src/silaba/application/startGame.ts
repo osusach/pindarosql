@@ -18,7 +18,7 @@ export async function startGame(difficulty: number, db: Connection) {
     }
   }
 
-  const silabas = rows.content as silaba[]
+  const silabas = rows.content
   const silabaQuestions: silabaQuestion[] = silabas.map(e => {
     const schema = selectSchema(e.answer)
     return {
@@ -30,10 +30,8 @@ export async function startGame(difficulty: number, db: Connection) {
   if (!session.success || !session.payload.session_id) {
     return {
       success: false,
-      payload: {
-        message: session.payload.message,
-        game: null
-      }
+      message: session.payload.message,
+      payload: null
     }
   }
 
@@ -42,21 +40,17 @@ export async function startGame(difficulty: number, db: Connection) {
   if (!game.content) {
     return {
       success: false,
-      payload: {
-        message: game.message,
-        game: null
-      }
+      message: game.message,
+      payload: null
     }
   }
 
   return {
     success: true,
+    message: "Game created successfully",
     payload: {
-      message: "Game created successfully",
-      game: {
-        session_id: session.payload.session_id,
-        questions: silabaQuestions
-      }
+      session_id: session.payload.session_id,
+      questions: silabaQuestions
     }
   }
   

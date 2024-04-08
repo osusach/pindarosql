@@ -9,9 +9,8 @@ export async function deleteAcentuales(body: any, env: Bindings, db: Connection)
   if (!bodyValidation.success) {
     return {
       success: false,
-      payload: {
-        message: bodyValidation.error
-      }
+      message: bodyValidation.error.toString(),
+      payload: null
     };
   }
   const data = bodyValidation.data
@@ -19,21 +18,20 @@ export async function deleteAcentuales(body: any, env: Bindings, db: Connection)
   if (!(await validateAdmin(data.token, env))) {
     return {
       success: false,
-      payload: {
-        message: "You have no authorization to do this!"
-      }
+      message: "You have no authorization to do this!",
+      payload: null
     }
   }
 
 
 
-  const idsString = data.ids.map(e=>{return `Acentual.id = ${e}`}).join(" OR ")
-  await db.execute(`UPDATE Acentual SET Acentual.is_active = 0 WHERE ${idsString}`)
+  const idsString = data.ids.join(", ")
+  await db.execute(`UPDATE Acentual SET Acentual.is_active = 0 WHERE Acentual.id IN (${idsString});`)
+  await db.execute(`UPDATE AcentualWord SET AcentualWord.is_active = 0 WHERE AcentualWord.acentual_id IN (${idsString});`)
 
   return {
     success: true,
-    payload: {
-      message: "Given acentuales deleted successfully"
-    }
+    message: "Given acentuales deleted successfully",
+    payload: null
   };
 }

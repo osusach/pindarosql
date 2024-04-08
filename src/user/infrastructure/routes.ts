@@ -6,6 +6,7 @@ import { addAdmin } from '../application/addAdmin';
 import { cors } from 'hono/cors';
 import { encryptPassword } from '../../shared/encryptPassword';
 import { decryptPassword } from '../../shared/decryptPassword';
+import { authenticateJWT } from '../../shared/authenticateJWT';
 
 export function getDatabaseConfig(env: Bindings) {
   return {
@@ -53,13 +54,13 @@ users.post("/register", async (c) => {
       {
         success: false,
         message: res.message,
-        payload: {}
+        payload: null
       }, 400)
   }
   return c.json({
-    success: true, payload:{
-        message: res.message
-    }
+    success: true,
+    message: res.message,
+    payload: res.payload
   }, 200)
 })
 
@@ -68,29 +69,23 @@ users.post("/registerAdmin", async (c) => {
   const body = await c.req.json()
   const res = await addAdmin(body, c.env, conn)
   if (!res.success) {
-    return c.json({success: false, payload: {message: res.message}}, 400)
+    return c.json({success: false, message: res.message, payload: null}, 400)
   }
   return c.json({
     success: true, 
     message: res.message,
-    payload:{
-    }
+    payload :res.payload
   }, 200)
 })
 
-users.get('/testEnc/:toEncrypt', async (c) => {
-  const text = c.req.param("toEncrypt");
-  const bruh = await encryptPassword(text, c.env);
-  return c.text(bruh);
+users.post("/loginToken", async (c) => {
+  const body = await c.req.json()
+  const xd = await authenticateJWT(body["token"], c.env)
+  
+  return c.text(xd.content!.user_id.toString())
 
 })
 
-users.get('/test/:toDecrypt', async (c) => {
-  const text = c.req.param("toDecrypt");
-  const bruh = await decryptPassword("U2FsdGVkX19ExXGC9br/seDzSgNyuhKlOBmSfBslOIA=", c.env);
-  return c.text(bruh);
-
-})
 
 
 export default users

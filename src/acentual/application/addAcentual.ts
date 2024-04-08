@@ -9,9 +9,8 @@ export async function addAcentual(body: any, env: Bindings, db: Connection) {
   if (!bodyValidation.success) {
     return {
       success: false,
-      payload: {
-        message: bodyValidation.error
-      }
+      message: bodyValidation.error.toString(),
+      payload: null
     };
   }
   const data = bodyValidation.data
@@ -19,9 +18,8 @@ export async function addAcentual(body: any, env: Bindings, db: Connection) {
   if (!(await validateAdmin(data.token, env))) {
     return {
       success: false,
-      payload: {
-        message: "You have no authorization to do this! "
-      }
+      message: "You have no authorization to do this!",
+      payload: null
     }
   }
 
@@ -37,9 +35,8 @@ export async function addAcentual(body: any, env: Bindings, db: Connection) {
     if (uploadPhraseQuery.rowsAffected != 1) {
       return {
         success: false,
-        payload: {
-          message: "Error while trying to upload the words to the database"
-        }
+        message: "Error while trying to upload the words to the database",
+        payload: null
       }
     }
     const uploadWordsQuery = await db.execute (`INSERT INTO AcentualWord (word, word_pos, answer, acentual_id)
@@ -48,9 +45,8 @@ export async function addAcentual(body: any, env: Bindings, db: Connection) {
     if (uploadWordsQuery.rowsAffected !=  acentualWords.length) {
       return {
         success: false,
-        payload: {
-          message: "Error while trying to upload the words to the database"
-        }
+        message: "Error while trying to upload the words to the database",
+        payload: null
       }
     }
     
@@ -58,9 +54,8 @@ export async function addAcentual(body: any, env: Bindings, db: Connection) {
 
   return {
     success: true,
-    payload: {
-      message: "Phrases uploaded to database successfully!"
-    }
+    message: "Phrases uploaded to database successfully!",
+    payload: null
   }
 }
 

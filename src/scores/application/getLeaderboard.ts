@@ -8,8 +8,8 @@ export async function getLeaderboards(db: Connection) {
 
   return {
     success: true,
+    message: "Leaderboards retrieved successfully",
     payload: {
-      message: "Leaderboards retrieved successfully",
       silabaLeaderboard: (await silabaLeaderboard).payload,
       acentualLeaderboard: (await acentualLeaderboard).payload,
       rimasLeaderboard: (await rimasLeaderboard).payload

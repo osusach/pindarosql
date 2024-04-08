@@ -9,9 +9,8 @@ export async function deleteRimas(body: any, env: Bindings, db: Connection) {
   if (!bodyValidation.success) {
     return {
       success: false,
-      payload: {
-        message: bodyValidation.error.toString()
-      }
+      message: bodyValidation.error.toString(),
+      payload: null
     };
   }
   const data = bodyValidation.data
@@ -19,9 +18,8 @@ export async function deleteRimas(body: any, env: Bindings, db: Connection) {
   if (!(await validateAdmin(data.token, env))) {
     return {
       success: false,
-      payload: {
-        message: "You have no authorization to do this!"
-      }
+      message: "You have no authorization to do this!",
+      payload: null
     }
   }
 
@@ -32,8 +30,7 @@ export async function deleteRimas(body: any, env: Bindings, db: Connection) {
 
   return {
     success: true,
-    payload: {
-      message: "Given rimas deleted successfully"
-    }
+    message: "Given rimas deleted successfully",
+    payload: null
   };
 }

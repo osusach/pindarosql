@@ -1,6 +1,6 @@
 import { Connection } from "@planetscale/database"
 import { acentualSessionAnswers, acentualGameResponse, completeAcentualGame, SessionAnswers } from "./types"
-import { getSession } from "./getSession"
+import { getSession } from "../../shared/getSession"
 import { getCompleteAcentualGames } from "./addPhraseToGames";
 import { Optional } from "../../shared/types";
 

@@ -1,17 +1,36 @@
 import { Connection } from "@planetscale/database"
 import { sessionScoreResponse } from "./types"
+import { authenticateJWT } from "../../shared/authenticateJWT";
+import { loginWithTokenSchema } from "../../shared/schemas";
 
 
 
-export async function getPlayerHistory(userId: number, db: Connection) {
-  const history = await getPlayerSessions(userId, db);
+export async function getPlayerHistory(body: any, env: Bindings, db: Connection) {
+  const bodyValidation = loginWithTokenSchema.safeParse(body)
+  if (!bodyValidation.success) {
+    return {
+      success: false,
+      message: bodyValidation.error.toString(),
+      payload: null
+    }
+  }
+
+
+  const userData = await authenticateJWT(bodyValidation.data.token, env)
+  if (!userData.content) {
+    return {
+      success: false,
+      message: "Invalid token",
+      payload: null
+    }
+  }
+
+  const history = await getPlayerSessions(userData.content.user_id, db);
 
   return {
     success: true,
-    payload: {
-      message: "Leaderboard retrieved successfully",
-      history: history
-    }
+    message: "Leaderboard retrieved successfully",
+    payload: history
   }
 }
 

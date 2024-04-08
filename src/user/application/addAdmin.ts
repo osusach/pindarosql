@@ -2,6 +2,7 @@ import type { Connection } from "@planetscale/database";
 import { addAdminSchema } from "../../shared/schemas"
 import { userExists } from "./userExists";
 import { encryptPassword } from "../../shared/encryptPassword";
+import jwt from '@tsndr/cloudflare-worker-jwt'
 export async function addAdmin(body: any, env: Bindings, db: Connection) {
   const bodyValidation = addAdminSchema.safeParse(body)
 
@@ -9,8 +10,7 @@ export async function addAdmin(body: any, env: Bindings, db: Connection) {
     return {
       success: false,
       message: bodyValidation.error,
-      payload: {
-      }
+      payload: null
     };
   }
   const data = bodyValidation.data
@@ -18,8 +18,7 @@ export async function addAdmin(body: any, env: Bindings, db: Connection) {
     return {
         success: false,
         message: "Invalid authorization",
-        payload: {
-        }
+        payload: null
     }
   }
 
@@ -27,8 +26,7 @@ export async function addAdmin(body: any, env: Bindings, db: Connection) {
     return {
       success: false,
       message: "User already exists in database!",
-      payload: {
-      }
+      payload: null
     }
   }
   const encryptedPassword = await encryptPassword(data.password, env);
@@ -39,14 +37,18 @@ export async function addAdmin(body: any, env: Bindings, db: Connection) {
     return {
       success: false,
       message: "Error adding user to database",
-      payload: {
-      }
+      payload: null
     }
   }
+
+  const token = await jwt.sign({user_id: userQuery.insertId, is_admin: true}, env.JWT_KEY)
+
+
   return {
     success: true,
     message: "User added successfully!",
     payload: {
+      token: token
     }
   }
 }

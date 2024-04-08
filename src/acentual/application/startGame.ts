@@ -11,12 +11,11 @@ export async function startGame(difficulty: number, db: Connection) {
   if (!rows.content) {
     return {
       success: false,
-      payload: {
-        message: rows.message,
-        game: null
-      }
+      message: rows.message,
+      payload: null
     }
   }
+  console.log("Acentuales obtenidos")
 
   const acentualQuestions: acentualQuestion[] = rows.content.map(e => {
     const schema = selectSchema(e.answer, difficulty)
@@ -26,38 +25,33 @@ export async function startGame(difficulty: number, db: Connection) {
   })
 
   // 2 FOR ACENTUAL GAME
+  console.log("Creando sesi[on")
   const session = await createSession(difficulty, 2, db)
   if (!session.success || !session.payload.session_id) {
     return {
       success: false,
-      payload: {
-        message: session.payload.message,
-        game: null
-      }
+      message: session.payload.message,
+      payload: null
     }
   }
 
-
+  console.log("anadiendo acentuales a xsesion")
   const game = await addAcentualesToSession(session.payload.session_id, acentualQuestions, db)
   
   if (!game.content) {
     return {
       success: false,
-      payload: {
-        message: game.message,
-        game: null
-      }
+      message: game.message,
+      payload: null
     }
   }
 
   return {
     success: true,
+    message: "Game created successfully",
     payload: {
-      message: "Game created successfully",
-      game: {
         session_id: session.payload.session_id,
         questions: acentualQuestions
-      }
     }
   }
   

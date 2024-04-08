@@ -23,7 +23,7 @@ export async function uploadScore(sessionId: string, userId: number, score: numb
   }
 
   return {
-    content: null,
+    content: answerTime,
     message: "Score stored successfully!"
   }
 }

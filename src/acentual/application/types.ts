@@ -6,10 +6,6 @@ export type acentualResponse = {
   is_active: boolean
 }
 
-export type acentualSessionResponse = {
-  session_difficulty: number,
-  creation_date: Date
-}
 
 export type acentualGameResponse = {
   game_id: number,

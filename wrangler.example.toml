@@ -9,6 +9,8 @@ DB_HOST = ""
 DB_USERNAME = ""
 DB_PASSWORD = ""
 SECRET_KEY = ""
+ENC_KEY = ""
+JWT_KEY = ""
 
 
 # production environment

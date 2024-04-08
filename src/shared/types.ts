@@ -35,8 +35,6 @@ export type userAnswers = {
 }
 
 export type silabaQuestionResponse = {
-  session_difficulty: number
-  creation_date: Date
   game_id: number
   option_schema_id: number
   silaba_id: number
@@ -71,4 +69,35 @@ export type GameCorrections<T> = {
   correct: number,
   total: number,
   time: string
+}
+
+export type sessionData = {
+  session_difficulty: number,
+  creation_date: Date
+}
+
+export type gameSilabasIds = {
+  game_id: number,
+  silaba_id: number,
+  option_schema_id: number
+}
+
+export type silabaAnswer = {
+  silaba_id: number,
+  word: string,
+  silaba_answer: number,
+}
+
+export type fullSilabaAnswer = {
+  game_id: number,
+  silaba_id: number,
+  word: string,
+  silaba_answer: number,
+  option_schema_id: number
+}
+
+export type sessionAnswers = {
+  answers: fullSilabaAnswer[],
+  session_difficulty: number,
+  creation_date: Date
 }

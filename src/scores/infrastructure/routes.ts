@@ -24,14 +24,17 @@ scores.use("*", cors())
 scores.get("/leaderboards", async (c) => {
   const conn = connect(getDatabaseConfig(c.env))
   const leaderboards = await getLeaderboards(conn)
-  return c.json({success: true, payload: leaderboards.payload}, 200)
+  return c.json(leaderboards, 200)
 })
 
-scores.get("/history/:userId", async (c) => {
+scores.post("/history", async (c) => {
   const conn = connect(getDatabaseConfig(c.env))
-  const userId = parseInt(c.req.param("userId"))
-  const leaderboards = await getPlayerHistory(userId, conn)
-  return c.json({success: true, payload: leaderboards.payload}, 200)
+  const body = await c.req.json()
+  const leaderboards = await getPlayerHistory(body, c.env, conn)
+  if (!leaderboards.success) {
+    return c.json(leaderboards, 400)
+  }
+  return c.json(leaderboards, 200)
 })
 
 export default scores

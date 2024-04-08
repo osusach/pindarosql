@@ -11,9 +11,8 @@ export async function getAllAcentuales(body: any, env: Bindings, db: Connection)
   if (!bodyValidation.success) {
     return {
       success: false,
-      payload: {
-        message: bodyValidation.error
-      }
+      message: bodyValidation.error.toString(),
+      payload: null
     };
   }
   const data = bodyValidation.data
@@ -21,9 +20,8 @@ export async function getAllAcentuales(body: any, env: Bindings, db: Connection)
   if (!(await validateAdmin(data.token, env))) {
     return {
       success: false,
-      payload: {
-        message: "You have no authorization to do this!"
-      }
+      message: "You have no authorization to do this!",
+      payload: null
     }
   }
 
@@ -35,8 +33,8 @@ export async function getAllAcentuales(body: any, env: Bindings, db: Connection)
 
   return {
     success: true,
+    message: "Questions retreived successfully",
     payload: {
-      message: "Questions retreived successfully",
       silabas: acentuales
     }
   };

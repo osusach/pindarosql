@@ -24,21 +24,14 @@ const acentual = new Hono<{ Bindings: Bindings }>()
 
 acentual.use("*", cors())
 
-acentual.get("/poto", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
-  const bruh = await conn.execute('INSERT INTO AcentualWord (word, word_pos, acentual_id) VALUES ("Poto1", 1, 3), ("Poto2", 1, 3);')
-  console.log(JSON.stringify(bruh))
-  return c.text(":3")
-})
-
 acentual.get("/start/:difficulty", async (c) => {
   const conn = connect(getDatabaseConfig(c.env))
   const diff = parseInt(c.req.param("difficulty"))
   const game = await startGame(diff, conn)
   if (!game.success) {
-    return c.json({success: false, payload: {message: game.payload.message, game: null}}, 400)
+    return c.json({success: false, message: game.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: {message: game.payload.message, game: game.payload.game}}, 200)
+  return c.json({success: true, message: game.message, payload: game.payload}, 200)
 })
 
 acentual.post("/submit", async (c) => {
@@ -46,9 +39,9 @@ acentual.post("/submit", async (c) => {
   const body = await c.req.json()
   const submit = await submitAnswers(body, c.env, conn)
   if (!submit.success) {
-    return c.json({success: false, payload: submit.payload}, 400)
+    return c.json({success: false, message: submit.message, payload: submit.payload}, 400)
   }
-  return c.json({success: true, payload: submit.payload}, 200)
+  return c.json({success: true, message: submit.message, payload: submit.payload}, 200)
   
 })
 
@@ -58,9 +51,9 @@ acentual.post("/uploadAcentual", async (c) => {
   const body = await c.req.json()
   const upload = await addAcentual(body, c.env, conn)
   if (!upload.success) {
-    return c.json({success: false, payload: upload.payload.message}, 400)
+    return c.json({success: false, message: upload.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: upload.payload}, 200)
+  return c.json({success: true, message: upload.message, payload: upload.payload}, 200)
 })
 
 acentual.post("/allAcentuales", async (c) => {
@@ -68,9 +61,9 @@ acentual.post("/allAcentuales", async (c) => {
   const body = await c.req.json()
   const acentuales = await getAllAcentuales(body, c.env, conn)
   if (!acentuales.success) {
-    return c.json({success: false, payload: acentuales.payload.message}, 400)
+    return c.json({success: false, message: acentuales.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: acentuales.payload}, 200)
+  return c.json({success: true, message: acentuales.message, payload: acentuales.payload}, 200)
 })
 
 acentual.post("/deleteAcentuales", async (c) => {
@@ -78,9 +71,9 @@ acentual.post("/deleteAcentuales", async (c) => {
   const body = await c.req.json()
   const acentuales = await deleteAcentuales(body, c.env, conn)
   if (!acentuales.success) {
-    return c.json({success: false, payload: acentuales.payload.message}, 400)
+    return c.json({success: false, message: acentuales.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: acentuales.payload}, 200)
+  return c.json({success: true, message: acentuales.message, payload: acentuales.payload}, 200)
 })
 
 acentual.post("/activateAcentuales", async (c) => {
@@ -88,11 +81,10 @@ acentual.post("/activateAcentuales", async (c) => {
   const body = await c.req.json()
   const acentuales = await activateAcentuales(body, c.env, conn)
   if (!acentuales.success) {
-    return c.json({success: false, payload: acentuales.payload.message}, 400)
+    return c.json({success: false, message: acentuales.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: acentuales.payload}, 200)
+  return c.json({success: true, message: acentuales.message, payload: null}, 200)
 })
-
 
 
 export default acentual

@@ -29,9 +29,9 @@ rimas.get("/start/:difficulty", async (c) => {
   const diff = parseInt(c.req.param("difficulty"))
   const game = await startGame(diff, conn)
   if (!game.success) {
-    return c.json({success: false, payload: {message: game.message, game: null}}, 400)
+    return c.json({success: false, message: game.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: {message: game.message, game: game.payload.game}}, 200)
+  return c.json({success: true, message: game.message, payload: game.payload}, 200)
 })
 
 rimas.post("/submit", async (c) => {
@@ -39,9 +39,9 @@ rimas.post("/submit", async (c) => {
   const body = await c.req.json()
   const submit = await submitAnswers(body, c.env, conn)
   if (!submit.success) {
-    return c.json({success: false, payload: submit.payload}, 400)
+    return c.json({success: false, message: submit.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: submit.payload}, 200)
+  return c.json({success: true, message: submit.message, payload: submit.payload}, 200)
   
 })
 
@@ -51,9 +51,9 @@ rimas.post("/uploadRimas", async (c) => {
   const body = await c.req.json()
   const upload = await addRimas(body, c.env, conn)
   if (!upload.success) {
-    return c.json({success: false, payload: upload.payload.message}, 400)
+    return c.json({success: false, message: upload.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: upload.payload}, 200)
+  return c.json({success: true, message: upload.message, payload: upload.payload}, 200)
 })
 
 
@@ -62,9 +62,9 @@ rimas.post("/allRimas", async (c) => {
   const body = await c.req.json()
   const rimas = await getAllRimas(body, c.env, conn)
   if (!rimas.success) {
-    return c.json({success: false, payload: rimas.message}, 400)
+    return c.json({success: false, message: rimas.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: rimas.payload}, 200)
+  return c.json({success: true, message: rimas.message, payload: rimas.payload}, 200)
 })
 
 rimas.post("/deleteRimas", async (c) => {
@@ -72,9 +72,9 @@ rimas.post("/deleteRimas", async (c) => {
   const body = await c.req.json()
   const rimas = await deleteRimas(body, c.env, conn)
   if (!rimas.success) {
-    return c.json({success: false, payload: rimas.payload.message}, 400)
+    return c.json({success: false, message: rimas.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: rimas.payload}, 200)
+  return c.json({success: true, message: rimas.message, payload: rimas.payload}, 200)
 })
 
 rimas.post("activateRimas", async (c) => {
@@ -82,9 +82,9 @@ rimas.post("activateRimas", async (c) => {
   const body = await c.req.json()
   const rimas = await activateRimas(body, c.env, conn)
   if (!rimas.success) {
-    return c.json({success: false, payload: rimas.payload.message}, 400)
+    return c.json({success: false, message: rimas.message, payload: null}, 400)
   }
-  return c.json({success: true, payload: rimas.payload}, 200)
+  return c.json({success: true, message: rimas.message, payload: rimas.payload}, 200)
 })
 
 export default rimas

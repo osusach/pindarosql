@@ -1,9 +1,9 @@
 import { Connection } from "@planetscale/database";
-import { rimaSessionResponse } from "./types";
-import { Optional } from "../../shared/types";
+
+import { Optional, sessionData } from "./types";
 
 
-export async function getSession(session_id: string, db: Connection): Promise<Optional<rimaSessionResponse>> {
+export async function getSession(session_id: string, db: Connection): Promise<Optional<sessionData>> {
   const sessionQuery = await db.execute(`SELECT GameSession.difficulty session_difficulty,
                                                 GameSession.creation_date creation_date
                                                 FROM GameSession WHERE GameSession.id = "${session_id}" AND GameSession.is_answered = 0;`)
@@ -17,7 +17,7 @@ export async function getSession(session_id: string, db: Connection): Promise<Op
 
   return {
     message: "Session retrieved successfully",
-    content: sessionQuery.rows[0] as rimaSessionResponse
+    content: sessionQuery.rows[0] as sessionData
   }
                                               
   

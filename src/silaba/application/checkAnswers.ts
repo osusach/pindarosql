@@ -1,15 +1,14 @@
 import { Connection } from "@planetscale/database";
-import { GameCorrections, Optional, silabaCorrection, silabaQuestionResponse, userSubmit } from "../../shared/types";
+import { GameCorrections, Optional, sessionAnswers, silabaCorrection, silabaQuestionResponse, userSubmit } from "../../shared/types";
 import { options } from "./optionSchemas";
 import { uploadAnswers } from "./uploadAnswers";
-import { corrections } from "../../acentual/application/types";
 
 const scores = [ 100, 125, 150, 200 ]
 const answerStrings = [ "Sin respuesta", "Una sílaba", "Dos sílabas", "Tres sílabas", "Cuatro sílabas", "Cinco sílabas", "Seis sílabas", "Siete sílabas", "Ocho sílabas"]
 
-export async function checkAnswers(answers: userSubmit, questions:silabaQuestionResponse[], env: Bindings, db: Connection): Promise<Optional<GameCorrections<silabaCorrection>>> {
-  const session_difficulty = questions[0].session_difficulty;
-  if (answers.answers.length != questions.length) {
+export async function checkAnswers(answers: userSubmit, questions:sessionAnswers, env: Bindings, db: Connection): Promise<Optional<GameCorrections<silabaCorrection>>> {
+  const session_difficulty = questions.session_difficulty;
+  if (answers.answers.length != questions.answers.length) {
     return {
       content: null,
       message: "Invalid answers for the question"
@@ -20,33 +19,33 @@ export async function checkAnswers(answers: userSubmit, questions:silabaQuestion
   let correct = 0
   let corrections: silabaCorrection[] = []
 
-  for(let i = 0; i < questions.length; i++) {
-    const answer = answers.answers.find(e => {return e.question_id === questions[i].silaba_id})
+  for(let i = 0; i < questions.answers.length; i++) {
+    const answer = answers.answers.find(e => {return e.question_id === questions.answers[i].silaba_id})
     if (!answer) {
       return {
         content: null,
         message: "Invalid answers sent!",
       }
     }
-    const is_correct = (questions[i].silaba_answer === answer.answer) ? true : false
+    const is_correct = (questions.answers[i].silaba_answer === answer.answer) ? true : false
     if (is_correct) {
-      score += scores[questions[0].session_difficulty]
+      score += scores[questions.session_difficulty]
       correct ++
 
     }
     corrections.push({
-      game_id: questions[i].game_id,
-      silaba_id: questions[i].silaba_id,
-      word: questions[i].word,
-      answer: questions[i].silaba_answer,
+      game_id: questions.answers[i].game_id,
+      silaba_id: questions.answers[i].silaba_id,
+      word: questions.answers[i].word,
+      answer: questions.answers[i].silaba_answer,
       user_answer_value: answer.answer,
       user_answer: answerStrings[answer.answer],
-      options: options[questions[i].option_schema_id],
+      options: options[questions.answers[i].option_schema_id],
       is_correct: is_correct
     })
   }
 
-  const uploadAnswersQuery = await uploadAnswers(corrections, answers.session_id, answers.token, score, questions[0].creation_date, session_difficulty, env, db)
+  const uploadAnswersQuery = await uploadAnswers(corrections, answers.session_id, answers.token, score, questions.creation_date, session_difficulty, env, db)
   if (!uploadAnswersQuery.content) {
     return {
       message: "Answers were not stored successfully",
@@ -54,8 +53,16 @@ export async function checkAnswers(answers: userSubmit, questions:silabaQuestion
     }
   }
 
+  const response = {
+    corrections: corrections,
+    score: score,
+    correct: correct,
+    total: questions.answers.length,
+    time: uploadAnswersQuery.content!
+  }
+
   return {
-    content: null,
+    content: response,
     message: "All questions checked successfully"
   }
 
