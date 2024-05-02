@@ -1,4 +1,4 @@
-import { Connection } from "@planetscale/database"
+import { Client } from "@libsql/client/web";
 import { acentualSessionAnswers, acentualGameResponse, completeAcentualGame, SessionAnswers } from "./types"
 import { getSession } from "../../shared/getSession"
 import { getCompleteAcentualGames } from "./addPhraseToGames";
@@ -6,7 +6,7 @@ import { Optional } from "../../shared/types";
 
 
 
-export async function getAcentualSessionAnswers(session_id: string, db: Connection): Promise<Optional<SessionAnswers>> {
+export async function getAcentualSessionAnswers(session_id: string, db: Client): Promise<Optional<SessionAnswers>> {
   const session = await getSession(session_id, db);
   
   if (!session.content) {

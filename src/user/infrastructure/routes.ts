@@ -1,29 +1,20 @@
 import { Hono } from 'hono';
 import { login } from '../application/login';
-import { connect, Config } from "@planetscale/database";
 import { addUser } from '../application/addUser';
 import { addAdmin } from '../application/addAdmin';
 import { cors } from 'hono/cors';
 import { encryptPassword } from '../../shared/encryptPassword';
 import { decryptPassword } from '../../shared/decryptPassword';
 import { authenticateJWT } from '../../shared/authenticateJWT';
+import { sqlClient } from '../../shared/sqlClient';
 
-export function getDatabaseConfig(env: Bindings) {
-  return {
-    host: env.DB_HOST,
-    username: env.DB_USERNAME,
-    password: env.DB_PASSWORD,
-    fetch: (url: string, init: RequestInit<RequestInitCfProperties>) => {
-      delete (init as any)["cache"]; // Remove cache header
-      return fetch(url, init);
-    },
-  } as Config;
-}
+
+
 
 const users = new Hono<{ Bindings: Bindings }>()
 users.use("*", cors())
 users.post("/login", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const res = await login(body, c.env, conn)
   if (!res.success) {
@@ -46,7 +37,7 @@ users.post("/login", async (c) => {
 })
 
 users.post("/register", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const res = await addUser(body, c.env, conn)
   if (!res.success) {
@@ -65,7 +56,7 @@ users.post("/register", async (c) => {
 })
 
 users.post("/registerAdmin", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const res = await addAdmin(body, c.env, conn)
   if (!res.success) {

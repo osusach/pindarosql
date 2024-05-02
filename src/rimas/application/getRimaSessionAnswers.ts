@@ -1,5 +1,5 @@
 
-import { Connection } from "@planetscale/database"
+import { Client } from "@libsql/client/web";
 import { SessionAnswers } from "./types"
 import { getSession } from "../../shared/getSession";
 import { getCompleteRimaGames } from "./getCompleteRimaGames";
@@ -7,7 +7,7 @@ import { Optional} from "../../shared/types";
 
 
 
-export async function getRimaSessionAnswers(session_id: string, db: Connection): Promise<Optional<SessionAnswers>> {
+export async function getRimaSessionAnswers(session_id: string, db: Client): Promise<Optional<SessionAnswers>> {
   const session = await getSession(session_id, db);
   if (!session.content) {
     return {

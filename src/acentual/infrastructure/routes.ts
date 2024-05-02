@@ -7,25 +7,16 @@ import { cors } from 'hono/cors';
 import { getAllAcentuales } from '../application/getAllAcentuales';
 import { deleteAcentuales } from '../application/deleteAcentuales';
 import { activateAcentuales } from '../application/activateAcentuales';
+import { sqlClient } from '../../shared/sqlClient';
 
-export function getDatabaseConfig(env: Bindings) {
-  return {
-    host: env.DB_HOST,
-    username: env.DB_USERNAME,
-    password: env.DB_PASSWORD,
-    fetch: (url: string, init: RequestInit<RequestInitCfProperties>) => {
-      delete (init as any)["cache"]; // Remove cache header
-      return fetch(url, init);
-    },
-  } as Config;
-}
+
 
 const acentual = new Hono<{ Bindings: Bindings }>()
 
 acentual.use("*", cors())
 
 acentual.get("/start/:difficulty", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const diff = parseInt(c.req.param("difficulty"))
   const game = await startGame(diff, conn)
   if (!game.success) {
@@ -35,7 +26,7 @@ acentual.get("/start/:difficulty", async (c) => {
 })
 
 acentual.post("/submit", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const submit = await submitAnswers(body, c.env, conn)
   if (!submit.success) {
@@ -47,7 +38,7 @@ acentual.post("/submit", async (c) => {
 
 
 acentual.post("/uploadAcentual", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const upload = await addAcentual(body, c.env, conn)
   if (!upload.success) {
@@ -57,7 +48,7 @@ acentual.post("/uploadAcentual", async (c) => {
 })
 
 acentual.post("/allAcentuales", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const acentuales = await getAllAcentuales(body, c.env, conn)
   if (!acentuales.success) {
@@ -67,7 +58,7 @@ acentual.post("/allAcentuales", async (c) => {
 })
 
 acentual.post("/deleteAcentuales", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const acentuales = await deleteAcentuales(body, c.env, conn)
   if (!acentuales.success) {
@@ -77,7 +68,7 @@ acentual.post("/deleteAcentuales", async (c) => {
 })
 
 acentual.post("/activateAcentuales", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const acentuales = await activateAcentuales(body, c.env, conn)
   if (!acentuales.success) {

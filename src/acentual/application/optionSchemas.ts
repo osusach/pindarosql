@@ -149,7 +149,6 @@ function getRandomInt(max: number) {
 export function selectSchema(correctAnswer: number, difficulty: number): {options: answerOption[], schemaId: number} {
 
   while (true) {
-    console.log(correctAnswer)
     const option = getRandomInt(allOptionsValues[difficulty].length - 1)
     if (allOptionsValues[difficulty][option].includes(correctAnswer)) {
       return {

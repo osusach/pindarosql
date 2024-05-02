@@ -1,10 +1,11 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { silaba } from "../../shared/types";
 import { validateAdmin } from "../../shared/validateAdmin";
 import { loginWithTokenSchema } from "../../shared/schemas";
 import { rimaResponse } from "./types";
+import { dbQuery } from "../../shared/dbQuery";
 
-export async function getAllRimas(body: any, env: Bindings, db: Connection) {
+export async function getAllRimas(body: any, env: Bindings, db: Client) {
 
   const bodyValidation = loginWithTokenSchema.safeParse(body);
 
@@ -25,10 +26,18 @@ export async function getAllRimas(body: any, env: Bindings, db: Connection) {
     }
   }
 
-  const rimasQuery = await db.execute(`
-    SELECT id, word, category, rhyme, is_active FROM Rima ORDER BY id;`);
+  const rimasQuery = `SELECT id, word, category, rhyme, is_active FROM Rima ORDER BY id;`;
+  const rimas = await dbQuery<rimaResponse>(rimasQuery, db)
 
-  const rimas = rimasQuery.rows as rimaResponse[]
+  if (!rimas.success) {
+    return {
+      success: false,
+      message: "Error while retrieving rimas",
+      payload: null
+    }
+  }
+
+
 
 
   return {

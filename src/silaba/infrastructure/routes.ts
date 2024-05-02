@@ -6,23 +6,14 @@ import { addSilaba } from '../application/addSilaba';
 import { getAllSilabas } from '../application/getAllSilabas';
 import { deleteSilabas } from '../application/deleteSilabas';
 import { activateSilabas } from '../application/activateSilabas';
+import { sqlClient } from '../../shared/sqlClient';
 
-export function getDatabaseConfig(env: Bindings) {
-  return {
-    host: env.DB_HOST,
-    username: env.DB_USERNAME,
-    password: env.DB_PASSWORD,
-    fetch: (url: string, init: RequestInit<RequestInitCfProperties>) => {
-      delete (init as any)["cache"]; // Remove cache header
-      return fetch(url, init);
-    },
-  } as Config;
-}
+
 
 const silabas = new Hono<{ Bindings: Bindings }>()
 
 silabas.get("/start/:difficulty", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const diff = parseInt(c.req.param("difficulty"))
   const game = await startGame(diff, conn)
   if (!game.success) {
@@ -32,7 +23,7 @@ silabas.get("/start/:difficulty", async (c) => {
 })
 
 silabas.post("/submit", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const submit = await submitAnswers(body, c.env, conn)
   if (!submit.success) {
@@ -43,7 +34,7 @@ silabas.post("/submit", async (c) => {
 })
 
 silabas.post("/uploadSilaba", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const upload = await addSilaba(body, c.env, conn)
   if (!upload.success) {
@@ -55,7 +46,7 @@ silabas.post("/uploadSilaba", async (c) => {
 
 
 silabas.post("/allSilabas", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const silabas = await getAllSilabas(body, c.env, conn)
   if (!silabas.success) {
@@ -65,7 +56,7 @@ silabas.post("/allSilabas", async (c) => {
 })
 
 silabas.post("/deleteSilabas", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const silabas = await deleteSilabas(body, c.env, conn)
   if (!silabas.success) {
@@ -75,7 +66,7 @@ silabas.post("/deleteSilabas", async (c) => {
 })
 
 silabas.post("/activateSilabas", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const silabas = await activateSilabas(body, c.env, conn)
   if (!silabas.success) {

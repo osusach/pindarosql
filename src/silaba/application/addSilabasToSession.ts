@@ -1,11 +1,11 @@
-import type { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { z } from "zod";
 import { uploadSilabasSchema } from "../../shared/schemas"
 import { validateAdmin } from "../../shared/validateAdmin"
 import { Optional, silaba, silabaQuestion } from "../../shared/types"
 import { selectSchema } from "./optionSchemas"
 
-export async function addSilabasToSession(sessionId: string, questions: silabaQuestion[], db: Connection): Promise<Optional<boolean>> {
+export async function addSilabasToSession(sessionId: string, questions: silabaQuestion[], db: Client): Promise<Optional<boolean>> {
 
   const uploadQuery = await db.execute(`
     INSERT INTO SilabaGame (session_id, silaba_id, option_schema_id)

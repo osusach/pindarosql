@@ -1,7 +1,8 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { Optional, fullSilabaAnswer, gameSilabasIds, silabaAnswer, silabaQuestionResponse } from "../../shared/types";
+import { dbQuery } from "../../shared/dbQuery";
 
-export async function getGamesSilabas(session_id: string, db: Connection): Promise<Optional<silabaQuestionResponse[]>> {
+export async function getGamesSilabas(session_id: string, db: Client): Promise<Optional<silabaQuestionResponse[]>> {
   const ids = await getGames(session_id, db);
   if (!ids.content) {
     return {
@@ -12,16 +13,17 @@ export async function getGamesSilabas(session_id: string, db: Connection): Promi
 
   const silabaIds = ids.content.map(e => e.silaba_id)
   const idString = silabaIds.join(", ")
-  const silabas = await db.execute(`SELECT Silaba.id silaba_id, Silaba.word, Silaba.answer silaba_answer FROM Silaba WHERE Silaba.id IN (${idString});`)
+  const silabaQuery = `SELECT Silaba.id silaba_id, Silaba.word, Silaba.answer silaba_answer FROM Silaba WHERE Silaba.id IN (${idString});`
+  const silabas = await dbQuery<silabaAnswer>(silabaQuery, db)
 
-  if (silabas.size === 0) {
+  if (!silabas.success || silabas.data.length === 0) {
     return {
       content: null,
       message: "Error while trying to retrieve silabas"
     }
   }
 
-  const fullSilabas = joinSilabasInfo(ids.content, silabas.rows as silabaAnswer[])
+  const fullSilabas = joinSilabasInfo(ids.content, silabas.data)
 
   if (!fullSilabas) {
     return {
@@ -38,16 +40,17 @@ export async function getGamesSilabas(session_id: string, db: Connection): Promi
 }
 
 
-async function getGames(session_id: string, db: Connection): Promise<Optional<gameSilabasIds[]>> {
-  const games = await db.execute(`SELECT id game_id, silaba_id, option_schema_id FROM SilabaGame WHERE session_id = "${session_id}";`)
-  if (games.size === 0) {
+async function getGames(session_id: string, db: Client): Promise<Optional<gameSilabasIds[]>> {
+  const gamesQuery = `SELECT id game_id, silaba_id, option_schema_id FROM SilabaGame WHERE session_id = "${session_id}";`
+  const games = await dbQuery<gameSilabasIds>(gamesQuery, db)
+  if (!games.success || games.data.length === 0) {
     return {
       content: null,
       message: "There are no games with such session id"
     }
   }
   return {
-    content: games.rows as gameSilabasIds[],
+    content: games.data,
     message: "Silaba ids retrieved successfully"
   }
 

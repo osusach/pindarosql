@@ -1,10 +1,11 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { silaba } from "../../shared/types";
 import { validateAdmin } from "../../shared/validateAdmin";
 import { loginWithTokenSchema } from "../../shared/schemas";
 import { acentualResponse } from "./types";
+import { dbQuery } from "../../shared/dbQuery";
 
-export async function getAllAcentuales(body: any, env: Bindings, db: Connection) {
+export async function getAllAcentuales(body: any, env: Bindings, db: Client) {
 
   const bodyValidation = loginWithTokenSchema.safeParse(body);
 
@@ -25,17 +26,23 @@ export async function getAllAcentuales(body: any, env: Bindings, db: Connection)
     }
   }
 
-  const acentualQuery = await db.execute(`
-    SELECT id acentual_id, phrase acentual_phrase, is_active FROM Acentual ORDER BY id;`);
+  const acentualQuery = `SELECT id acentual_id, phrase acentual_phrase, is_active FROM Acentual ORDER BY id;`;
 
-  const acentuales = acentualQuery.rows as acentualResponse[]
+  const acentuales = await dbQuery<acentualResponse>(acentualQuery, db)
 
+  if (!acentuales.success) {
+    return {
+      success: false,
+      message: "Error while retrieving acentuales",
+      payload: null
+    }
+  }
 
   return {
     success: true,
     message: "Questions retreived successfully",
     payload: {
-      silabas: acentuales
+      silabas: acentuales.data
     }
   };
 }

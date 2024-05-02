@@ -1,9 +1,9 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { silaba } from "../../shared/types";
 import { validateAdmin } from "../../shared/validateAdmin";
 import { adminCredentialsSchema, deleteByIdSchema } from "../../shared/schemas";
 
-export async function activateRimas(body: any, env: Bindings, db: Connection) {
+export async function activateRimas(body: any, env: Bindings, db: Client) {
   const bodyValidation = deleteByIdSchema.safeParse(body);
 
   if (!bodyValidation.success) {
@@ -26,7 +26,7 @@ export async function activateRimas(body: any, env: Bindings, db: Connection) {
 
 
   const idsString = data.ids.map(e=>{return `Rima.id = ${e}`}).join(" OR ")
-  await db.execute(`UPDATE Rima SET Rima.is_active = 1 WHERE ${idsString}`)
+  await db.execute(`UPDATE Rima SET is_active = 1 WHERE ${idsString}`)
 
   return {
     success: true,

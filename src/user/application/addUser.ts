@@ -1,11 +1,12 @@
-import type { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { v4 } from 'uuid'
 import jwt from "@tsndr/cloudflare-worker-jwt"
 import { userExists } from "./userExists"
 
 import { addUserSchema } from "../../shared/schemas"
 import { encryptPassword } from "../../shared/encryptPassword";
-export async function addUser(body: any, env: Bindings, db: Connection) {
+import { dbQuery } from "../../shared/dbQuery";
+export async function addUser(body: any, env: Bindings, db: Client) {
   const bodyValidation = addUserSchema.safeParse(body)
 
   if (!bodyValidation.success) {
@@ -27,9 +28,11 @@ export async function addUser(body: any, env: Bindings, db: Connection) {
 
 
   const encryptedPassword = encryptPassword(data.password, env)
-  console.log(encryptedPassword)
+  const insertQuery = `INSERT INTO User (name, course, email, password)
+  VALUES ("${data.name}", "${data.course}", "${data.email}", "${encryptedPassword}")`
+
   const userQuery = await db.execute(`INSERT INTO User (name, course, email, password)
-                                      VALUES ("${data.name}", "${data.course}", "${data.email}", "${encryptedPassword}")`)
+                                      VALUES ("${data.name}", "${data.course}", "${data.email}", "${encryptedPassword}");`)
 
   if (userQuery.rowsAffected != 1) {
     return {
@@ -39,7 +42,7 @@ export async function addUser(body: any, env: Bindings, db: Connection) {
     }
   }
 
-  const token = await jwt.sign({user_id: userQuery.insertId, is_admin: false}, env.JWT_KEY)
+  const token = await jwt.sign({user_id: parseInt(userQuery.lastInsertRowid!.toString()), is_admin: false}, env.JWT_KEY)
 
   return {
     success: true,

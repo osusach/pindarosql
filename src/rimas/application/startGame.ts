@@ -1,4 +1,4 @@
-import { Connection } from "@planetscale/database"
+import { Client } from "@libsql/client/web"
 import { getRimas } from "./getRimas"
 import { rimaQuestion } from "./types"
 import { selectSchema } from "./optionSchemas"
@@ -9,7 +9,7 @@ import { addRimasToSession } from "./addRimasToSession"
 
 
 
-export async function startGame(difficulty: number, db: Connection) {
+export async function startGame(difficulty: number, db: Client) {
   let rimaSets = await getRimas(10, db)
   if (!rimaSets.content) {
     return {

@@ -1,4 +1,4 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { calculateTime } from "./calculateTime";
 import { Optional } from "../../shared/types";
 
@@ -7,7 +7,7 @@ export async function uploadScore(sessionId: string,
                                   score: number,
                                   start_date: Date,
                                   difficulty: number,
-                                  db: Connection): Promise<Optional<string>> {
+                                  db: Client): Promise<Optional<string>> {
 
   const answerTime = await calculateTime(start_date, db)
   const uploadQuery = await db.execute(`INSERT INTO SessionScore (session_id, score, user_id, answer_time, game_id, difficulty) VALUES ("${sessionId}", ${score}, ${userId}, "${answerTime}", 3, ${difficulty})`)

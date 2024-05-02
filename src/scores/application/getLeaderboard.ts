@@ -1,7 +1,7 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { getGameLeaderboard } from "./getGameLeaderboard";
 
-export async function getLeaderboards(db: Connection) {
+export async function getLeaderboards(db: Client) {
   let silabaLeaderboard = getGameLeaderboard(1, 10, db)
   let acentualLeaderboard = getGameLeaderboard(2, 10, db)
   let rimasLeaderboard = getGameLeaderboard(3, 10, db)

@@ -1,9 +1,11 @@
-import type { Connection } from "@planetscale/database";
-export async function userExists(email: string, db: Connection) {
+import { Client } from "@libsql/client/web";
+import { dbQuery } from "../../shared/dbQuery";
+export async function userExists(email: string, db: Client) {
 
-  const userQuery = await db.execute(`SELECT name FROM User WHERE email = "${email}"`)
+  const query = `SELECT name FROM User WHERE email = "${email}"`
+  const user = await dbQuery(query, db)
 
-  if (userQuery.size == 0) {
+  if (!user.success || user.data.length == 0) {
     return {
       success: true,
       message: "Checked user existance successfully",
@@ -12,6 +14,7 @@ export async function userExists(email: string, db: Connection) {
       }
     }
   }
+
   return {
     success: true,
     message: "Checked user existance successfully",

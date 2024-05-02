@@ -1,9 +1,8 @@
-import type { Connection } from "@planetscale/database";
-import { z } from "zod";
+import { Client } from "@libsql/client/web";
 import { uploadRimaSchema } from "../../shared/schemas"
 import { validateAdmin } from "../../shared/validateAdmin"
 
-export async function addRimas(body: any, env: Bindings, db: Connection) {
+export async function addRimas(body: any, env: Bindings, db: Client) {
   const bodyValidation = uploadRimaSchema.safeParse(body);
 
   if (!bodyValidation.success) {
@@ -23,7 +22,6 @@ export async function addRimas(body: any, env: Bindings, db: Connection) {
       payload: null
     }
   }
-  console.log("Validado")
   const rhymesValues = data.rimas.map(e=>{
     const vowelsArray = Array.from(e.rhyme).filter(char => /[aeiouAEIOU]/.test(char));
     const vowels = vowelsArray.join('');
@@ -31,9 +29,7 @@ export async function addRimas(body: any, env: Bindings, db: Connection) {
   })
   const rhymesString = rhymesValues.join(",")
   const query = `INSERT INTO Rima (word, category, rhyme, vowels) VALUES ${rhymesString};`
-  console.log(query);
   const uploadRhymeRequest = await db.execute(query)
-  console.log('Executed query')
   if (uploadRhymeRequest.rowsAffected != data.rimas.length) {
     return {
       success: false,

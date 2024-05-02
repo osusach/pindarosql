@@ -1,14 +1,15 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 
 import { acentualGamesWithWords} from "./types"
 import { getAcentualGames } from "./getGames";
 import { acentualGames, acentualGameResponse, acentualWordResponse, acentualGameWithWord } from "./types";
 import { Optional } from "../../shared/types";
+import { dbQuery } from "../../shared/dbQuery";
 
 
 
 
-export async function getAcentualGamesWithWords(session_id: string, db: Connection): Promise<Optional<acentualGameWithWord[]>> {
+export async function getAcentualGamesWithWords(session_id: string, db: Client): Promise<Optional<acentualGameWithWord[]>> {
   const acentualGamesRequest = await getAcentualGames(session_id, db);
   if (!acentualGamesRequest.content) {
     return {
@@ -26,17 +27,16 @@ export async function getAcentualGamesWithWords(session_id: string, db: Connecti
                         AcentualWord.word_pos word_pos
                         FROM AcentualWord WHERE AcentualWord.id = ${wordIds.join(" OR AcentualWord.id = ")};`
   
-  const wordsQuery = await db.execute(query)
+  const words = await dbQuery<acentualWordResponse>(query, db)
 
-  if (wordsQuery.size == 0) {
+  if (!words.success || words.data.length == 0) {
     return {
       message: "No words found for given games!",
       content: null
     }
   }
 
-  const words = wordsQuery.rows as acentualWordResponse[]
-  return addWordsToGames(games, words)
+  return addWordsToGames(games, words.data)
   
 }
 

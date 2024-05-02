@@ -1,9 +1,9 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { silaba } from "../../shared/types";
 import { validateAdmin } from "../../shared/validateAdmin";
 import { adminCredentialsSchema, deleteByIdSchema } from "../../shared/schemas";
 
-export async function deleteSilabas(body: any, env: Bindings, db: Connection) {
+export async function deleteSilabas(body: any, env: Bindings, db: Client) {
 
   const bodyValidation = deleteByIdSchema.safeParse(body);
 
@@ -25,7 +25,7 @@ export async function deleteSilabas(body: any, env: Bindings, db: Connection) {
   }
 
   const idsString = data.ids.map(e=>{return `Silaba.id = ${e}`}).join(" OR ")
-  await db.execute(`UPDATE Silaba SET Silaba.is_active = 0 WHERE ${idsString};`)
+  await db.execute(`UPDATE Silaba SET is_active = 0 WHERE ${idsString};`)
 
   return {
     success: true,

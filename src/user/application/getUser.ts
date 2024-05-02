@@ -1,11 +1,17 @@
-import { Connection } from "@planetscale/database"
+import { Client } from "@libsql/client/web"
 import { user } from "../../shared/types"
+import { dbQuery } from "../../shared/dbQuery"
 
+type id = {
+  id: number
+}
 
-export async function getUserId(email: string, password: string, db: Connection) {
+export async function getUserId(email: string, password: string, db: Client) {
+  const query = `SELECT id FROM User WHERE email = "${email}" AND password = "${password}";`
+  const userId = await dbQuery<id>(query, db)
   const userQuery = await db.execute(`SELECT id FROM User WHERE email = "${email}" AND password = "${password}";`)
 
-  if (userQuery.size == 0) {
+  if (!userId.success || userId.data.length == 0) {
     return {
       success: false,
       message: "User credentials do not exist in database",
@@ -15,9 +21,7 @@ export async function getUserId(email: string, password: string, db: Connection)
   return {
     success: true,
     message: "Successfully logged in!",
-    payload: {
-        ... userQuery.rows[0] as {id: number}
-        
-    }
+    payload: 
+        userId.data[0]
   }
 }

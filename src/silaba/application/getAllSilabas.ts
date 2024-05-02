@@ -1,9 +1,10 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { silaba } from "../../shared/types";
 import { validateAdmin } from "../../shared/validateAdmin";
 import { adminCredentialsSchema, loginWithTokenSchema } from "../../shared/schemas";
+import { dbQuery } from "../../shared/dbQuery";
 
-export async function getAllSilabas(body: any, env: Bindings, db: Connection) {
+export async function getAllSilabas(body: any, env: Bindings, db: Client) {
 
   const bodyValidation = loginWithTokenSchema.safeParse(body);
 
@@ -24,16 +25,22 @@ export async function getAllSilabas(body: any, env: Bindings, db: Connection) {
     }
   }
 
-  const silabasQuery = await db.execute(`
-    SELECT * FROM Silaba ORDER BY id;
-  `);
+  const silabasQuery = `SELECT * FROM Silaba ORDER BY id;`
+  const silabas = await dbQuery<silaba>(silabasQuery, db)
 
+  if (!silabas.success) {
+    return {
+      success: false,
+      message: "Error while retrieving silabas",
+      payload: null
+    }
+  }
 
   return {
     success: true,
     message: "Questions retreived successfully",
     payload: {
-      silabas: silabasQuery.rows as silaba[]
+      silabas: silabas.data
     }
   };
 }

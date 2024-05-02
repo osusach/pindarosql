@@ -1,9 +1,9 @@
-import type { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { addAdminSchema } from "../../shared/schemas"
 import { userExists } from "./userExists";
 import { encryptPassword } from "../../shared/encryptPassword";
 import jwt from '@tsndr/cloudflare-worker-jwt'
-export async function addAdmin(body: any, env: Bindings, db: Connection) {
+export async function addAdmin(body: any, env: Bindings, db: Client) {
   const bodyValidation = addAdminSchema.safeParse(body)
 
   if (!bodyValidation.success) {
@@ -41,7 +41,7 @@ export async function addAdmin(body: any, env: Bindings, db: Connection) {
     }
   }
 
-  const token = await jwt.sign({user_id: userQuery.insertId, is_admin: true}, env.JWT_KEY)
+  const token = await jwt.sign({user_id: userQuery.lastInsertRowid, is_admin: true}, env.JWT_KEY)
 
 
   return {

@@ -1,9 +1,9 @@
-import type { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { z } from "zod";
 import { uploadAcentualSchema } from "../../shared/schemas"
 import { validateAdmin } from "../../shared/validateAdmin"
 
-export async function addAcentual(body: any, env: Bindings, db: Connection) {
+export async function addAcentual(body: any, env: Bindings, db: Client) {
   const bodyValidation = uploadAcentualSchema.safeParse(body);
 
   if (!bodyValidation.success) {
@@ -40,7 +40,7 @@ export async function addAcentual(body: any, env: Bindings, db: Connection) {
       }
     }
     const uploadWordsQuery = await db.execute (`INSERT INTO AcentualWord (word, word_pos, answer, acentual_id)
-                                                VALUES ${acentualWords.map(e => {return `("${e.word}", ${e.pos}, ${e.answer}, ${uploadPhraseQuery.insertId})`})}`)
+                                                VALUES ${acentualWords.map(e => {return `("${e.word}", ${e.pos}, ${e.answer}, ${uploadPhraseQuery.lastInsertRowid})`})}`)
 
     if (uploadWordsQuery.rowsAffected !=  acentualWords.length) {
       return {

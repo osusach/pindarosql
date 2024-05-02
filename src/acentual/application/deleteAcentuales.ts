@@ -1,9 +1,9 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { silaba } from "../../shared/types";
 import { validateAdmin } from "../../shared/validateAdmin";
 import { adminCredentialsSchema, deleteByIdSchema } from "../../shared/schemas";
 
-export async function deleteAcentuales(body: any, env: Bindings, db: Connection) {
+export async function deleteAcentuales(body: any, env: Bindings, db: Client) {
   const bodyValidation = deleteByIdSchema.safeParse(body);
 
   if (!bodyValidation.success) {
@@ -26,8 +26,8 @@ export async function deleteAcentuales(body: any, env: Bindings, db: Connection)
 
 
   const idsString = data.ids.join(", ")
-  await db.execute(`UPDATE Acentual SET Acentual.is_active = 0 WHERE Acentual.id IN (${idsString});`)
-  await db.execute(`UPDATE AcentualWord SET AcentualWord.is_active = 0 WHERE AcentualWord.acentual_id IN (${idsString});`)
+  await db.execute(`UPDATE Acentual SET is_active = 0 WHERE Acentual.id IN (${idsString});`)
+  await db.execute(`UPDATE AcentualWord SET is_active = 0 WHERE AcentualWord.acentual_id IN (${idsString});`)
 
   return {
     success: true,

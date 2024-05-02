@@ -1,7 +1,6 @@
 type Bindings = {
-  DB_HOST: string;
-  DB_USERNAME: string;
-  DB_PASSWORD: string;
+  LIBSQL_URL: string;
+  LIBSQL_TOKEN: string;
   ENV: string;
   SECRET_KEY: string;
   ENC_KEY: string;

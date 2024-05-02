@@ -1,4 +1,4 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { GameCorrections, Optional, sessionAnswers, silabaCorrection, silabaQuestionResponse, userSubmit } from "../../shared/types";
 import { options } from "./optionSchemas";
 import { uploadAnswers } from "./uploadAnswers";
@@ -6,7 +6,7 @@ import { uploadAnswers } from "./uploadAnswers";
 const scores = [ 100, 125, 150, 200 ]
 const answerStrings = [ "Sin respuesta", "Una sílaba", "Dos sílabas", "Tres sílabas", "Cuatro sílabas", "Cinco sílabas", "Seis sílabas", "Siete sílabas", "Ocho sílabas"]
 
-export async function checkAnswers(answers: userSubmit, questions:sessionAnswers, env: Bindings, db: Connection): Promise<Optional<GameCorrections<silabaCorrection>>> {
+export async function checkAnswers(answers: userSubmit, questions:sessionAnswers, env: Bindings, db: Client): Promise<Optional<GameCorrections<silabaCorrection>>> {
   const session_difficulty = questions.session_difficulty;
   if (answers.answers.length != questions.answers.length) {
     return {

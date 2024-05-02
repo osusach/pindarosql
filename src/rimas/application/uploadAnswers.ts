@@ -1,5 +1,5 @@
 import { rimaCorrection } from "./types";
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { getUserId } from "../../user/application/getUser";
 import { uploadScore } from "./uploadScore";
 import jwt from "@tsndr/cloudflare-worker-jwt"
@@ -14,7 +14,7 @@ export async function uploadAnswers(corrections: rimaCorrection[],
                                     start_date: Date,
                                     difficulty: number,
                                     env: Bindings,
-                                    db: Connection): Promise<Optional<string>> {
+                                    db: Client): Promise<Optional<string>> {
   if (!token) { 
     const uploadAnswersQuery = await db.execute(`INSERT INTO Answer (session_id, user_id, answer_value, game_type_id, game_id) VALUES ${corrections.map(e=> `("${gameSession}", 0, ${e.user_answer_value}, 3, ${e.game_id})`).join(",")}`)
     const uploadScoreQuery = await uploadScore(gameSession, 0, score, start_date, difficulty, db)

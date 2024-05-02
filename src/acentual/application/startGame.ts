@@ -1,4 +1,4 @@
-import type { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web"
 
 import { createSession } from "../../shared/createSession"
 import { acentualQuestion } from "./types"
@@ -6,7 +6,7 @@ import { addAcentualesToSession } from "./addAcentualesToSession"
 import { getAcentuales } from "./getAcentuales"
 import { selectSchema } from "./optionSchemas"
 
-export async function startGame(difficulty: number, db: Connection) {
+export async function startGame(difficulty: number, db: Client) {
   let rows = await getAcentuales(difficulty, 10, db)
   if (!rows.content) {
     return {
@@ -15,7 +15,6 @@ export async function startGame(difficulty: number, db: Connection) {
       payload: null
     }
   }
-  console.log("Acentuales obtenidos")
 
   const acentualQuestions: acentualQuestion[] = rows.content.map(e => {
     const schema = selectSchema(e.answer, difficulty)
@@ -25,7 +24,6 @@ export async function startGame(difficulty: number, db: Connection) {
   })
 
   // 2 FOR ACENTUAL GAME
-  console.log("Creando sesi[on")
   const session = await createSession(difficulty, 2, db)
   if (!session.success || !session.payload.session_id) {
     return {
@@ -35,7 +33,6 @@ export async function startGame(difficulty: number, db: Connection) {
     }
   }
 
-  console.log("anadiendo acentuales a xsesion")
   const game = await addAcentualesToSession(session.payload.session_id, acentualQuestions, db)
   
   if (!game.content) {

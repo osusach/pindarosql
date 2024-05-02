@@ -6,7 +6,7 @@
     "esModuleInterop": true,
     "strict": true,
     "lib": [
-      "ES2016"
+      "ESNext"
     ],
     "types": [
       "@cloudflare/workers-types"

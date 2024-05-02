@@ -1,17 +1,23 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { rimaSet, rimaResponse, rimaSetResponse } from "./types";
 import { Optional } from "../../shared/types";
+import { dbQuery } from "../../shared/dbQuery";
 
 
 
-export async function getRimas(amount: number, db: Connection): Promise<Optional<rimaSet[]>> {
+export async function getRimas(amount: number, db: Client): Promise<Optional<rimaSet[]>> {
   // const minimumCorrectAnswers = Math.floor(Math.random() * amount / 3);
 
-  const rimasQuery = await db.execute(`
-    SELECT id, word, category, rhyme, vowels FROM Rima WHERE Rima.is_active = 1 ORDER BY vowels;`);
+  const rimasQuery = `SELECT id, word, category, rhyme, vowels FROM Rima WHERE Rima.is_active = 1 ORDER BY vowels;`
+  const rimas = await dbQuery<rimaResponse>(rimasQuery, db)
 
-  const rimas = rimasQuery.rows as rimaResponse[]
-  const rimaSets = selectRimas(rimas, amount)
+  if (!rimas.success) {
+    return {
+      content: null,
+      message: "Error while retrieving rimas"
+    }
+  }
+  const rimaSets = selectRimas(rimas.data, amount)
 
   return rimaSets;
 }
@@ -28,20 +34,15 @@ function selectRimas(rimas: rimaResponse[], totalRhymes: number): Optional<rimaS
   }
 
   let groupedRhymes:rimaResponse[][] = groupRhymes(rimas);
-  console.log(JSON.stringify(groupedRhymes));
   let selectedRhymes: rimaSet[] = []
   while (selectedRhymes.length < random) {
     const randomPos = Math.floor(Math.random() * (groupedRhymes.length - 1));
-    console.log(randomPos)
     const selectedGroup = shuffle(groupedRhymes[randomPos])
     if (selectedGroup.length < 2) continue;
     const set = {rhyme_a: selectedGroup[0], rhyme_b: selectedGroup[1]};
     selectedRhymes.push(set);
-    console.log(JSON.stringify(selectedRhymes))
   }
-  console.log("Rimas agregadas");
   selectedRhymes = addMissingRhymes(selectedRhymes, rimas, totalRhymes)
-  console.log('Agregadas las faltantes')
   
   return {
     message: "Rhymes retrieved successfully",

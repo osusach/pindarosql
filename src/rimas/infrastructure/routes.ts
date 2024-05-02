@@ -7,6 +7,8 @@ import { getAllRimas } from '../application/getAllRimas';
 import { cors } from 'hono/cors';
 import { deleteRimas } from '../application/deleteRimas';
 import { activateRimas } from '../application/activateRimas';
+import { sqlClient } from '../../shared/sqlClient';
+
 
 export function getDatabaseConfig(env: Bindings) {
   return {
@@ -25,7 +27,7 @@ rimas.use("*", cors())
 
 
 rimas.get("/start/:difficulty", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const diff = parseInt(c.req.param("difficulty"))
   const game = await startGame(diff, conn)
   if (!game.success) {
@@ -35,7 +37,7 @@ rimas.get("/start/:difficulty", async (c) => {
 })
 
 rimas.post("/submit", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const submit = await submitAnswers(body, c.env, conn)
   if (!submit.success) {
@@ -47,7 +49,7 @@ rimas.post("/submit", async (c) => {
 
 
 rimas.post("/uploadRimas", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const upload = await addRimas(body, c.env, conn)
   if (!upload.success) {
@@ -58,7 +60,7 @@ rimas.post("/uploadRimas", async (c) => {
 
 
 rimas.post("/allRimas", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const rimas = await getAllRimas(body, c.env, conn)
   if (!rimas.success) {
@@ -68,7 +70,7 @@ rimas.post("/allRimas", async (c) => {
 })
 
 rimas.post("/deleteRimas", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const rimas = await deleteRimas(body, c.env, conn)
   if (!rimas.success) {
@@ -78,7 +80,7 @@ rimas.post("/deleteRimas", async (c) => {
 })
 
 rimas.post("activateRimas", async (c) => {
-  const conn = connect(getDatabaseConfig(c.env))
+  const conn = sqlClient(c.env)
   const body = await c.req.json()
   const rimas = await activateRimas(body, c.env, conn)
   if (!rimas.success) {

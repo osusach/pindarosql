@@ -1,18 +1,15 @@
-import type { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 
 import { acentualQuestion } from "./types"
 import { Optional } from "../../shared/types";
 
-export async function addAcentualesToSession(sessionId: string, questions: acentualQuestion[], db: Connection): Promise<Optional<Boolean>> {
+export async function addAcentualesToSession(sessionId: string, questions: acentualQuestion[], db: Client): Promise<Optional<Boolean>> {
 
-  console.log("Añadiendoooo")
-  const queri = `
+  const query = `
   INSERT INTO AcentualGame (session_id, word_id, option_schema_id)
   VALUES ${questions.map(e => `("${sessionId}", ${e.id}, ${e.option_schema_id})`).join(",")};
 `
-  console.log(queri)
-  const uploadQuery = await db.execute(queri);
-  console.log("Añadido")
+  const uploadQuery = await db.execute(query);
 
   if (uploadQuery.rowsAffected != questions.length) {
     return {

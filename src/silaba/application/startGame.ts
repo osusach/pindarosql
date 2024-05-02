@@ -1,14 +1,12 @@
-import type { Connection } from "@planetscale/database";
-import { z } from "zod";
-import { uploadSilabasSchema } from "../../shared/schemas"
-import { validateAdmin } from "../../shared/validateAdmin"
+import { Client } from "@libsql/client/web";
+
 import { createSession } from "../../shared/createSession"
 import { silaba, silabaQuestion } from "../../shared/types"
 import { addSilabasToSession } from "./addSilabasToSession"
 import { getSilabas } from "./getSilabas"
 import { selectSchema } from "./optionSchemas"
 
-export async function startGame(difficulty: number, db: Connection) {
+export async function startGame(difficulty: number, db: Client) {
   let rows = await getSilabas(difficulty, 10, db)
   if (!rows.content) {
     return {

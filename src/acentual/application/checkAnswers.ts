@@ -1,4 +1,4 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { GameCorrections, Optional, userSubmit } from "../../shared/types";
 import { allOptions } from "./optionSchemas";
 import { uploadAnswers } from "./uploadAnswers";
@@ -8,7 +8,7 @@ const scores = [ 100, 125, 150, 200 ]
 const answerStrings = [ "Sin respuesta", "Monosílabo átono", "Monosílabo tónico", "Bisílabo átono", "Aguda", "Grave", "Esdrújula", "Sobreesdrújula"]
 
 
-export async function checkAnswers(answers: userSubmit, sessionAnswers:SessionAnswers, env: Bindings, db: Connection): Promise<Optional<GameCorrections<acentualCorrection>>> {
+export async function checkAnswers(answers: userSubmit, sessionAnswers:SessionAnswers, env: Bindings, db: Client): Promise<Optional<GameCorrections<acentualCorrection>>> {
   const questions = sessionAnswers.answers
   const session_difficulty = sessionAnswers.difficulty
   const creation_date = sessionAnswers.creation_date

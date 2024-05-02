@@ -1,4 +1,4 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { userSubmit, Optional, GameCorrections } from "../../shared/types";
 import { getAnswer, selectSchema } from "./optionSchemas";
 import { uploadAnswers } from "./uploadAnswers";
@@ -18,7 +18,7 @@ type corrections = {
 export async function checkAnswers(answers: userSubmit,
                                    sessionAnswers:SessionAnswers,
                                    env: Bindings,
-                                   db: Connection): Promise<Optional<GameCorrections<rimaCorrection>>> {
+                                   db: Client): Promise<Optional<GameCorrections<rimaCorrection>>> {
   const questions = sessionAnswers.answers
   const session_difficulty = sessionAnswers.difficulty
   const creation_date = sessionAnswers.creation_date
@@ -69,7 +69,6 @@ export async function checkAnswers(answers: userSubmit,
       is_correct: is_correct
     })
   }
-  console.log("upload query")
   const uploadAnswersQuery = await uploadAnswers(corrections,
                                                  answers.session_id,
                                                  answers.token,

@@ -1,11 +1,11 @@
-import type { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { sessionAnswers } from "../../shared/schemas"
 import { getRimaSessionAnswers } from "./getRimaSessionAnswers";
 import { checkAnswers } from "./checkAnswers";
 
 
 
-export async function submitAnswers(body: any, env: Bindings, db: Connection) {
+export async function submitAnswers(body: any, env: Bindings, db: Client) {
   const bodyValidation = sessionAnswers.safeParse(body);
   if (!bodyValidation.success) {
     return {

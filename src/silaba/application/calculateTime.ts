@@ -1,4 +1,5 @@
-import { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
+import { dbQuery } from "../../shared/dbQuery";
 
 function msToTime(duration: number) {
   let seconds = Math.floor((duration / 1000) % 60)
@@ -12,12 +13,14 @@ function msToTime(duration: number) {
   return hoursStr + ":" + minutesStr + ":" + secondsStr;
 }
 
-export async function calculateTime(prevTime: Date, db: Connection) {
-  
-  const currentTimeQuery = await db.execute('SELECT CURRENT_TIMESTAMP time;')
-  const currentTime = currentTimeQuery.rows[0] as {time: Date}
+export async function calculateTime(prevTime: Date, db: Client) {
+  const currentTimeQuery = 'SELECT CURRENT_TIMESTAMP time;'
+  const currentTime = await dbQuery<{time: Date}>(currentTimeQuery, db)
+  if (!currentTime.success) {
+    return "99:99:99"
+  }
   const startTime = new Date(prevTime)
-  const finishDate = new Date(currentTime.time)
+  const finishDate = new Date(currentTime.data[0].time)
   const ms = finishDate.getTime() - startTime.getTime()
 
   return msToTime(ms)

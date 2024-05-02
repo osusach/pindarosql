@@ -1,6 +1,6 @@
-import type { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 import { v4 } from 'uuid'
-export async function createSession(difficulty: number, gameType: number, db: Connection) {
+export async function createSession(difficulty: number, gameType: number, db: Client) {
   const sessionId = v4()
 
   const query = await db.execute(`

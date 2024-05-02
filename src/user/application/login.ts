@@ -1,10 +1,11 @@
-import type { Connection } from "@planetscale/database";
+import { Client } from "@libsql/client/web";
 
 import { loginSchema } from "../../shared/schemas"
 import { user } from "../../shared/types";
 import { decryptPassword } from "../../shared/decryptPassword";
 import jwt from '@tsndr/cloudflare-worker-jwt'
-export async function login(body: any, env: Bindings, db: Connection) {
+import { dbQuery } from "../../shared/dbQuery";
+export async function login(body: any, env: Bindings, db: Client) {
 
   const bodyValidation = loginSchema.safeParse(body)
 
@@ -18,10 +19,10 @@ export async function login(body: any, env: Bindings, db: Connection) {
     }
   }
   const data = bodyValidation.data
-  console.log(`SELECT name, course, email, password, is_admin FROM User WHERE email = "${data.email}" AND password = "${data.password}";`)
-  const userQuery = await db.execute(`SELECT id, name, course, email, password, is_admin FROM User WHERE email = "${data.email}";`)
+  const userQuery = `SELECT id, name, course, email, password, is_admin FROM User WHERE email = "${data.email}";`
 
-  if (userQuery.size == 0) {
+  const user = await dbQuery<user>(userQuery, db)
+  if (!user.success) {
     return {
       success: false,
       message: "User credentials do not exist in database",
@@ -30,9 +31,7 @@ export async function login(body: any, env: Bindings, db: Connection) {
       }
     }
   }
-
-  const user = userQuery.rows as user[]
-  const decryptedPassword = decryptPassword(user[0].password, env);
+  const decryptedPassword = decryptPassword(user.data[0].password, env);
   if (data.password != decryptedPassword) {
     return {
       success: false,
@@ -43,12 +42,12 @@ export async function login(body: any, env: Bindings, db: Connection) {
     }
   }
 
-  const token = await jwt.sign({user_id: user[0].id, is_admin: user[0].is_admin}, env.JWT_KEY)
+  const token = await jwt.sign({user_id: user.data[0].id, is_admin: user.data[0].is_admin}, env.JWT_KEY)
 
 
   const response = {
-    name: user[0].name,
-    course: user[0].course,
+    name: user.data[0].name,
+    course: user.data[0].course,
     token: token
   }
   
