@@ -4,7 +4,7 @@ import { loginSchema } from "../../shared/schemas"
 import { user } from "../../shared/types";
 import { decryptPassword } from "../../shared/decryptPassword";
 import jwt from '@tsndr/cloudflare-worker-jwt'
-import { dbQuery } from "../../shared/dbQuery";
+
 export async function login(body: any, env: Bindings, db: Client) {
 
   const bodyValidation = loginSchema.safeParse(body)
@@ -19,10 +19,21 @@ export async function login(body: any, env: Bindings, db: Client) {
     }
   }
   const data = bodyValidation.data
-  const userQuery = `SELECT id, name, course, email, password, is_admin FROM User WHERE email = "${data.email}";`
 
-  const user = await dbQuery<user>(userQuery, db)
-  if (!user.success) {
+  let found: user | null = null
+  try {
+    const userQuery = await db.execute({
+      sql: `SELECT id, name, course, email, password, is_admin FROM User WHERE email = ?;`,
+      args: [data.email]
+    })
+    if (userQuery.rows.length > 0) {
+      found = userQuery.rows[0] as unknown as user
+    }
+  } catch (e) {
+    console.log("login db error", e)
+  }
+
+  if (!found) {
     return {
       success: false,
       message: "User credentials do not exist in database",
@@ -31,7 +42,14 @@ export async function login(body: any, env: Bindings, db: Client) {
       }
     }
   }
-  const decryptedPassword = decryptPassword(user.data[0].password, env);
+
+  let decryptedPassword = ""
+  try {
+    decryptedPassword = decryptPassword(found.password, env)
+  } catch (e) {
+    decryptedPassword = ""
+  }
+
   if (data.password != decryptedPassword) {
     return {
       success: false,
@@ -42,12 +60,12 @@ export async function login(body: any, env: Bindings, db: Client) {
     }
   }
 
-  const token = await jwt.sign({user_id: user.data[0].id, is_admin: user.data[0].is_admin}, env.JWT_KEY)
+  const token = await jwt.sign({user_id: found.id, is_admin: found.is_admin}, env.JWT_KEY)
 
 
   const response = {
-    name: user.data[0].name,
-    course: user.data[0].course,
+    name: found.name,
+    course: found.course,
     token: token
   }
   

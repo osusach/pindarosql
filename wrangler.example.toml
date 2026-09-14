@@ -1,24 +1,17 @@
 name = "pindarosql"
 compatibility_date = "2023-01-01"
-# development environment
 main = "src/index.ts"
-# development environment
+
+# Non-secret configuration belongs here.
 [vars]
 ENV = "development"
-DB_HOST = ""
-DB_USERNAME = ""
-DB_PASSWORD = ""
-SECRET_KEY = ""
-ENC_KEY = ""
-JWT_KEY = ""
 
+# Secrets (LIBSQL_URL, LIBSQL_TOKEN, JWT_KEY, ENC_KEY, IV, SECRET_KEY) must NOT
+# be committed. For local dev put them in `.dev.vars` (gitignored), and for
+# production register them with `wrangler secret put <NAME>`.
 
 # production environment
 [env.production]
 name = "pindarosqlprod"
 [env.production.vars]
 ENV = "production"
-DB_HOST = ""
-DB_USERNAME = ""
-DB_PASSWORD = ""
-SECRET_KEY = ""

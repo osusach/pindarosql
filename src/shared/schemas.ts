@@ -71,6 +71,32 @@ export const deleteByIdSchema = z.object({
   ids: z.array(z.number())
 })
 
+export const editSilabaSchema = z.object({
+  token: z.string(),
+  silaba: z.object({
+    id: z.number(),
+    word: z.string().min(1),
+    answer_value: z.number().or(z.string().transform(Number)),
+    difficulty: z.number().or(z.string().transform(Number))
+  })
+})
+
+export const editRimaSchema = z.object({
+  token: z.string(),
+  rima: z.object({
+    id: z.number(),
+    word: z.string().min(1),
+    category: z.string(),
+    rhyme: z.string().min(1)
+  })
+})
+
+export const editAcentualSchema = z.object({
+  token: z.string(),
+  acentual_id: z.number(),
+  phrase: z.string().min(1)
+})
+
 export const loginWithTokenSchema = z.object({
   token: z.string()
 })

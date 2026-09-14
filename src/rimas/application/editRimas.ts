@@ -1,9 +1,13 @@
 import { Client } from "@libsql/client/web";
 import { validateAdmin } from "../../shared/validateAdmin";
-import { editSilabaSchema } from "../../shared/schemas";
+import { editRimaSchema } from "../../shared/schemas";
 
-export async function editSilaba(body: any, env: Bindings, db: Client) {
-  const bodyValidation = editSilabaSchema.safeParse(body);
+function getVowels(rhyme: string) {
+  return Array.from(rhyme).filter(char => /[aeiouAEIOU]/.test(char)).join("")
+}
+
+export async function editRima(body: any, env: Bindings, db: Client) {
+  const bodyValidation = editRimaSchema.safeParse(body);
 
   if (!bodyValidation.success) {
     return {
@@ -22,23 +26,23 @@ export async function editSilaba(body: any, env: Bindings, db: Client) {
     }
   }
 
-  const { id, word, answer_value, difficulty } = data.silaba
+  const { id, word, category, rhyme } = data.rima
   const updateQuery = await db.execute({
-    sql: `UPDATE Silaba SET word = ?, answer = ?, difficulty = ? WHERE id = ?;`,
-    args: [word, Number(answer_value), Number(difficulty), id]
+    sql: `UPDATE Rima SET word = ?, category = ?, rhyme = ?, vowels = ? WHERE id = ?;`,
+    args: [word, category, rhyme, getVowels(rhyme), id]
   })
 
   if (updateQuery.rowsAffected != 1) {
     return {
       success: false,
-      message: "Error while trying to update the silaba",
+      message: "Error while trying to update the rima",
       payload: null
     }
   }
 
   return {
     success: true,
-    message: "Silaba updated successfully",
+    message: "Rima updated successfully",
     payload: null
   };
 }

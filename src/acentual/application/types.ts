@@ -1,9 +1,17 @@
 import { answerOption } from "../../shared/types";
 
+export type acentualWord = {
+  word_id: number,
+  word: string,
+  word_pos: number,
+  answer: number
+}
+
 export type acentualResponse = {
   acentual_id: number,
   acentual_phrase: string,
-  is_active: boolean
+  is_active: boolean,
+  words: acentualWord[]
 }
 
 

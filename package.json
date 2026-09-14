@@ -4,7 +4,7 @@
     "deploy": "wrangler deploy --minify src/index.ts"
   },
   "dependencies": {
-    "@libsql/client": "^0.6.0",
+    "@libsql/client": "^0.18.0",
     "@planetscale/database": "^1.11.0",
     "@tsndr/cloudflare-worker-jwt": "^2.3.2",
     "@types/crypto-js": "^4.2.1",

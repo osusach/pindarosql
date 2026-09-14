@@ -7,6 +7,7 @@ import { cors } from 'hono/cors';
 import { getAllAcentuales } from '../application/getAllAcentuales';
 import { deleteAcentuales } from '../application/deleteAcentuales';
 import { activateAcentuales } from '../application/activateAcentuales';
+import { editAcentual } from '../application/editAcentuales';
 import { sqlClient } from '../../shared/sqlClient';
 
 
@@ -74,7 +75,17 @@ acentual.post("/activateAcentuales", async (c) => {
   if (!acentuales.success) {
     return c.json({success: false, message: acentuales.message, payload: null}, 400)
   }
-  return c.json({success: true, message: acentuales.message, payload: null}, 200)
+  return c.json({success: true, message: acentuales.message, payload: acentuales.payload}, 200)
+})
+
+acentual.post("/editAcentual", async (c) => {
+  const conn = sqlClient(c.env)
+  const body = await c.req.json()
+  const acentual = await editAcentual(body, c.env, conn)
+  if (!acentual.success) {
+    return c.json({success: false, message: acentual.message, payload: null}, 400)
+  }
+  return c.json({success: true, message: acentual.message, payload: acentual.payload}, 200)
 })
 
 

@@ -6,6 +6,7 @@ import { addSilaba } from '../application/addSilaba';
 import { getAllSilabas } from '../application/getAllSilabas';
 import { deleteSilabas } from '../application/deleteSilabas';
 import { activateSilabas } from '../application/activateSilabas';
+import { editSilaba } from '../application/editSilabas';
 import { sqlClient } from '../../shared/sqlClient';
 
 
@@ -73,6 +74,16 @@ silabas.post("/activateSilabas", async (c) => {
     return c.json({success: false, message: silabas.message, payload: null}, 400)
   }
   return c.json({success: true, message: silabas.message, payload: silabas.payload}, 200)
+})
+
+silabas.post("/editSilaba", async (c) => {
+  const conn = sqlClient(c.env)
+  const body = await c.req.json()
+  const silaba = await editSilaba(body, c.env, conn)
+  if (!silaba.success) {
+    return c.json({success: false, message: silaba.message, payload: null}, 400)
+  }
+  return c.json({success: true, message: silaba.message, payload: silaba.payload}, 200)
 })
 
 export default silabas
