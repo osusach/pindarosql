@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { connect, Config } from "@planetscale/database";
 import { getLeaderboards } from '../application/getLeaderboard';
 import { getPlayerHistory } from '../application/getPlayerHistory';
 import { cors } from 'hono/cors';
@@ -7,18 +6,6 @@ import { sqlClient } from '../../shared/sqlClient';
 
 
 
-
-export function getDatabaseConfig(env: Bindings) {
-  return {
-    host: env.DB_HOST,
-    username: env.DB_USERNAME,
-    password: env.DB_PASSWORD,
-    fetch: (url: string, init: RequestInit<RequestInitCfProperties>) => {
-      delete (init as any)["cache"]; // Remove cache header
-      return fetch(url, init);
-    },
-  } as Config;
-}
 
 const scores = new Hono<{ Bindings: Bindings }>()
 scores.use("*", cors())
