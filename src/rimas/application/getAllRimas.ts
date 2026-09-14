@@ -44,7 +44,7 @@ export async function getAllRimas(body: any, env: Bindings, db: Client) {
     success: true,
     message: "Questions retreived successfully",
     payload: {
-      silabas: rimas
+      rimas: rimas.data
     }
   };
 }

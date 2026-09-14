@@ -1,26 +1,14 @@
 import { Hono } from 'hono';
 import { startGame } from '../application/startGame';
-import { connect, Config } from "@planetscale/database";
 import { submitAnswers } from '../application/submitAnswers';
 import { addRimas } from '../application/addRimas';
 import { getAllRimas } from '../application/getAllRimas';
 import { cors } from 'hono/cors';
 import { deleteRimas } from '../application/deleteRimas';
 import { activateRimas } from '../application/activateRimas';
+import { editRima } from '../application/editRimas';
 import { sqlClient } from '../../shared/sqlClient';
 
-
-export function getDatabaseConfig(env: Bindings) {
-  return {
-    host: env.DB_HOST,
-    username: env.DB_USERNAME,
-    password: env.DB_PASSWORD,
-    fetch: (url: string, init: RequestInit<RequestInitCfProperties>) => {
-      delete (init as any)["cache"]; // Remove cache header
-      return fetch(url, init);
-    },
-  } as Config;
-}
 
 const rimas = new Hono<{ Bindings: Bindings }>()
 rimas.use("*", cors())
@@ -79,7 +67,7 @@ rimas.post("/deleteRimas", async (c) => {
   return c.json({success: true, message: rimas.message, payload: rimas.payload}, 200)
 })
 
-rimas.post("activateRimas", async (c) => {
+rimas.post("/activateRimas", async (c) => {
   const conn = sqlClient(c.env)
   const body = await c.req.json()
   const rimas = await activateRimas(body, c.env, conn)
@@ -87,6 +75,16 @@ rimas.post("activateRimas", async (c) => {
     return c.json({success: false, message: rimas.message, payload: null}, 400)
   }
   return c.json({success: true, message: rimas.message, payload: rimas.payload}, 200)
+})
+
+rimas.post("/editRima", async (c) => {
+  const conn = sqlClient(c.env)
+  const body = await c.req.json()
+  const rima = await editRima(body, c.env, conn)
+  if (!rima.success) {
+    return c.json({success: false, message: rima.message, payload: null}, 400)
+  }
+  return c.json({success: true, message: rima.message, payload: rima.payload}, 200)
 })
 
 export default rimas
