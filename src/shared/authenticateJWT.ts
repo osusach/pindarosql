@@ -7,7 +7,12 @@ type JWTCredentials = {
 }
 
 export async function authenticateJWT(token: string, env: Bindings): Promise<Optional<JWTCredentials>> {
-  const isValid = await jwt.verify(token, env.JWT_KEY);
+  let isValid = false
+  try {
+    isValid = await jwt.verify(token, env.JWT_KEY);
+  } catch (e) {
+    isValid = false
+  }
   if (!isValid) {
     return {
       message: "Given JWT is not valid!",
