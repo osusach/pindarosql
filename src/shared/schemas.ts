@@ -3,7 +3,9 @@ import { z } from 'zod'
 export const silabaSchema = z.object({
   word: z.string(),
   difficulty: z.number().or(z.string().transform(Number)),
-  answer_value: z.number().or(z.string().transform(Number))
+  answer_value: z.number().or(z.string().transform(Number)),
+  fonemas: z.number().or(z.string().transform(Number)),
+  grafemas: z.number().or(z.string().transform(Number))
 })
 
 export const uploadSilabasSchema = z.object({
@@ -77,7 +79,9 @@ export const editSilabaSchema = z.object({
     id: z.number(),
     word: z.string().min(1),
     answer_value: z.number().or(z.string().transform(Number)),
-    difficulty: z.number().or(z.string().transform(Number))
+    difficulty: z.number().or(z.string().transform(Number)),
+    fonemas: z.number().or(z.string().transform(Number)),
+    grafemas: z.number().or(z.string().transform(Number))
   })
 })
 
@@ -99,4 +103,48 @@ export const editAcentualSchema = z.object({
 
 export const loginWithTokenSchema = z.object({
   token: z.string()
+})
+
+const optionalId = z.union([z.number(), z.string().transform(Number)]).optional()
+
+export const importSilabaRowSchema = z.object({
+  id: optionalId,
+  word: z.string().min(1),
+  answer_value: z.number().or(z.string().transform(Number)),
+  difficulty: z.number().or(z.string().transform(Number)),
+  fonemas: z.number().or(z.string().transform(Number)),
+  grafemas: z.number().or(z.string().transform(Number)),
+  is_active: z.boolean().optional()
+})
+
+export const importSilabasSchema = z.object({
+  token: z.string(),
+  preview: z.boolean().optional(),
+  silabas: z.array(importSilabaRowSchema)
+})
+
+export const importRimaRowSchema = z.object({
+  id: optionalId,
+  word: z.string().min(1),
+  rhyme: z.string().min(1),
+  category: z.string(),
+  is_active: z.boolean().optional()
+})
+
+export const importRimasSchema = z.object({
+  token: z.string(),
+  preview: z.boolean().optional(),
+  rimas: z.array(importRimaRowSchema)
+})
+
+export const importAcentualRowSchema = z.object({
+  id: optionalId,
+  phrase: z.string().min(1),
+  is_active: z.boolean().optional()
+})
+
+export const importAcentualSchema = z.object({
+  token: z.string(),
+  preview: z.boolean().optional(),
+  acentuales: z.array(importAcentualRowSchema)
 })

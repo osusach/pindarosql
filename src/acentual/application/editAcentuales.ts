@@ -4,7 +4,9 @@ import { editAcentualSchema } from "../../shared/schemas";
 
 type parsedWord = { word: string, answer: number, pos: number }
 
-function parsePhrase(phrase: string): parsedWord[] | null {
+export type Executor = { execute: (stmt: any, args?: any) => Promise<any> }
+
+export function parsePhrase(phrase: string): parsedWord[] | null {
   const parts = phrase.split("-")
   if (parts.length === 0 || parts.length % 2 !== 0) return null
   const words: parsedWord[] = []
@@ -15,6 +17,42 @@ function parsePhrase(phrase: string): parsedWord[] | null {
     words.push({ word, answer, pos: i / 2 })
   }
   return words
+}
+
+export async function reconcileAcentualWords(db: Executor, acentualId: number, words: parsedWord[]) {
+  const existingQuery = await db.execute({
+    sql: `SELECT id, word_pos FROM AcentualWord WHERE acentual_id = ? ORDER BY word_pos;`,
+    args: [acentualId]
+  })
+  const existingByPos = new Map<number, number>()
+  existingQuery.rows.forEach((row: any) => {
+    existingByPos.set(Number(row.word_pos), Number(row.id))
+  })
+
+  for (const word of words) {
+    const existingId = existingByPos.get(word.pos)
+    if (existingId !== undefined) {
+      await db.execute({
+        sql: `UPDATE AcentualWord SET word = ?, answer = ?, word_pos = ?, is_active = 1 WHERE id = ?;`,
+        args: [word.word, word.answer, word.pos, existingId]
+      })
+      existingByPos.delete(word.pos)
+    } else {
+      await db.execute({
+        sql: `INSERT INTO AcentualWord (word, word_pos, answer, acentual_id, is_active) VALUES (?, ?, ?, ?, 1);`,
+        args: [word.word, word.pos, word.answer, acentualId]
+      })
+    }
+  }
+
+  // Words that are no longer part of the phrase are deactivated, not deleted,
+  // so past games and corrections that reference them stay valid.
+  for (const leftoverId of existingByPos.values()) {
+    await db.execute({
+      sql: `UPDATE AcentualWord SET is_active = 0 WHERE id = ?;`,
+      args: [leftoverId]
+    })
+  }
 }
 
 export async function editAcentual(body: any, env: Bindings, db: Client) {
@@ -48,44 +86,12 @@ export async function editAcentual(body: any, env: Bindings, db: Client) {
 
   const phrase = words.map(e => e.word).join(" ")
 
-  const existingQuery = await db.execute({
-    sql: `SELECT id, word_pos FROM AcentualWord WHERE acentual_id = ? ORDER BY word_pos;`,
-    args: [data.acentual_id]
-  })
-  const existingByPos = new Map<number, number>()
-  existingQuery.rows.forEach(row => {
-    existingByPos.set(Number(row.word_pos), Number(row.id))
-  })
-
   await db.execute({
     sql: `UPDATE Acentual SET phrase = ? WHERE id = ?;`,
     args: [phrase, data.acentual_id]
   })
 
-  for (const word of words) {
-    const existingId = existingByPos.get(word.pos)
-    if (existingId !== undefined) {
-      await db.execute({
-        sql: `UPDATE AcentualWord SET word = ?, answer = ?, word_pos = ?, is_active = 1 WHERE id = ?;`,
-        args: [word.word, word.answer, word.pos, existingId]
-      })
-      existingByPos.delete(word.pos)
-    } else {
-      await db.execute({
-        sql: `INSERT INTO AcentualWord (word, word_pos, answer, acentual_id, is_active) VALUES (?, ?, ?, ?, 1);`,
-        args: [word.word, word.pos, word.answer, data.acentual_id]
-      })
-    }
-  }
-
-  // Words that are no longer part of the phrase are deactivated, not deleted,
-  // so past games and corrections that reference them stay valid.
-  for (const leftoverId of existingByPos.values()) {
-    await db.execute({
-      sql: `UPDATE AcentualWord SET is_active = 0 WHERE id = ?;`,
-      args: [leftoverId]
-    })
-  }
+  await reconcileAcentualWords(db, data.acentual_id, words)
 
   return {
     success: true,

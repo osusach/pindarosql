@@ -3,6 +3,7 @@ import { startGame } from '../application/startGame';
 import { connect, Config } from "@planetscale/database";
 import { submitAnswers } from '../application/submitAnswers';
 import { addAcentual } from '../application/addAcentual';
+import { importAcentuales } from '../application/importAcentuales';
 import { cors } from 'hono/cors';
 import { getAllAcentuales } from '../application/getAllAcentuales';
 import { deleteAcentuales } from '../application/deleteAcentuales';
@@ -44,6 +45,16 @@ acentual.post("/uploadAcentual", async (c) => {
   const upload = await addAcentual(body, c.env, conn)
   if (!upload.success) {
     return c.json({success: false, message: upload.message, payload: null}, 400)
+  }
+  return c.json({success: true, message: upload.message, payload: upload.payload}, 200)
+})
+
+acentual.post("/importAcentual", async (c) => {
+  const conn = sqlClient(c.env)
+  const body = await c.req.json()
+  const upload = await importAcentuales(body, c.env, conn)
+  if (!upload.success) {
+    return c.json({success: false, message: upload.message, payload: upload.payload}, 400)
   }
   return c.json({success: true, message: upload.message, payload: upload.payload}, 200)
 })

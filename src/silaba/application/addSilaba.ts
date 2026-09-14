@@ -23,8 +23,8 @@ export async function addSilaba(body: any, env: Bindings, db: Client) {
   }
 
   const uploadQuery = await db.execute(`
-    INSERT INTO Silaba (word, answer, difficulty)
-    VALUES ${data.silabas.map(e => `("${e.word}", ${e.answer_value}, ${e.difficulty})`).join(",")};
+    INSERT INTO Silaba (word, answer, difficulty, fonemas, grafemas)
+    VALUES ${data.silabas.map(e => `("${e.word}", ${e.answer_value}, ${e.difficulty}, ${e.fonemas}, ${e.grafemas})`).join(",")};
   `);
   return {
     success: true,
