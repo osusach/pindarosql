@@ -22,10 +22,10 @@ export async function editSilaba(body: any, env: Bindings, db: Client) {
     }
   }
 
-  const { id, word, answer_value, difficulty } = data.silaba
+  const { id, word, answer_value, difficulty, fonemas, grafemas } = data.silaba
   const updateQuery = await db.execute({
-    sql: `UPDATE Silaba SET word = ?, answer = ?, difficulty = ? WHERE id = ?;`,
-    args: [word, Number(answer_value), Number(difficulty), id]
+    sql: `UPDATE Silaba SET word = ?, answer = ?, difficulty = ?, fonemas = ?, grafemas = ? WHERE id = ?;`,
+    args: [word, Number(answer_value), Number(difficulty), Number(fonemas), Number(grafemas), id]
   })
 
   if (updateQuery.rowsAffected != 1) {

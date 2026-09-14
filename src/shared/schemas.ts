@@ -3,7 +3,9 @@ import { z } from 'zod'
 export const silabaSchema = z.object({
   word: z.string(),
   difficulty: z.number().or(z.string().transform(Number)),
-  answer_value: z.number().or(z.string().transform(Number))
+  answer_value: z.number().or(z.string().transform(Number)),
+  fonemas: z.number().or(z.string().transform(Number)),
+  grafemas: z.number().or(z.string().transform(Number))
 })
 
 export const uploadSilabasSchema = z.object({
@@ -77,7 +79,9 @@ export const editSilabaSchema = z.object({
     id: z.number(),
     word: z.string().min(1),
     answer_value: z.number().or(z.string().transform(Number)),
-    difficulty: z.number().or(z.string().transform(Number))
+    difficulty: z.number().or(z.string().transform(Number)),
+    fonemas: z.number().or(z.string().transform(Number)),
+    grafemas: z.number().or(z.string().transform(Number))
   })
 })
 

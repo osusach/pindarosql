@@ -3,6 +3,8 @@ export type silaba = {
   word: string,
   answer: number,
   difficulty: number,
+  fonemas: number,
+  grafemas: number,
   is_active: boolean,
   creation_date: Date,
   modification_date: Date
