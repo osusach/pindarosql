@@ -3,6 +3,7 @@ import { startGame } from '../application/startGame';
 import { connect, Config } from "@planetscale/database";
 import { submitAnswers } from '../application/submitAnswers';
 import { addSilaba } from '../application/addSilaba';
+import { importSilabas } from '../application/importSilabas';
 import { getAllSilabas } from '../application/getAllSilabas';
 import { deleteSilabas } from '../application/deleteSilabas';
 import { activateSilabas } from '../application/activateSilabas';
@@ -43,6 +44,17 @@ silabas.post("/uploadSilaba", async (c) => {
   }
   return c.json({success: true, message: upload.message, payload: upload.payload}, 200)
 
+})
+
+
+silabas.post("/importSilabas", async (c) => {
+  const conn = sqlClient(c.env)
+  const body = await c.req.json()
+  const upload = await importSilabas(body, c.env, conn)
+  if (!upload.success) {
+    return c.json({success: false, message: upload.message, payload: upload.payload}, 400)
+  }
+  return c.json({success: true, message: upload.message, payload: upload.payload}, 200)
 })
 
 

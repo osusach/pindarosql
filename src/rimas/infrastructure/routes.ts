@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { startGame } from '../application/startGame';
 import { submitAnswers } from '../application/submitAnswers';
 import { addRimas } from '../application/addRimas';
+import { importRimas } from '../application/importRimas';
 import { getAllRimas } from '../application/getAllRimas';
 import { cors } from 'hono/cors';
 import { deleteRimas } from '../application/deleteRimas';
@@ -42,6 +43,17 @@ rimas.post("/uploadRimas", async (c) => {
   const upload = await addRimas(body, c.env, conn)
   if (!upload.success) {
     return c.json({success: false, message: upload.message, payload: null}, 400)
+  }
+  return c.json({success: true, message: upload.message, payload: upload.payload}, 200)
+})
+
+
+rimas.post("/importRimas", async (c) => {
+  const conn = sqlClient(c.env)
+  const body = await c.req.json()
+  const upload = await importRimas(body, c.env, conn)
+  if (!upload.success) {
+    return c.json({success: false, message: upload.message, payload: upload.payload}, 400)
   }
   return c.json({success: true, message: upload.message, payload: upload.payload}, 200)
 })
